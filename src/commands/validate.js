@@ -9,6 +9,7 @@ const REQUIRED_FILES = [
   "VERSION",
   "CHANGELOG.md",
   "CONTRIBUTING.md",
+  "src/commands/install.js",
   "src/commands/doctor.js",
   "templates/.github/copilot-instructions.md",
   "templates/.github/prompts",
@@ -49,6 +50,36 @@ function validateVersionMatch(root) {
   };
 }
 
+function validatePackageConfig(root) {
+  const packagePath = path.join(root, "package.json");
+
+  if (!exists(packagePath)) {
+    return [
+      {
+        ok: false,
+        message: "package.json missing."
+      }
+    ];
+  }
+
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+
+  return [
+    {
+      ok: packageJson.name === "copilotops",
+      message: `package.json name is ${packageJson.name || "missing"}; expected copilotops.`
+    },
+    {
+      ok: Boolean(packageJson.bin && packageJson.bin.copilotops),
+      message: "package.json bin.copilotops is required."
+    },
+    {
+      ok: packageJson.private === true,
+      message: "package.json private must be true for the private GitHub repo access model."
+    }
+  ];
+}
+
 async function validate(options) {
   const root = path.resolve(options.source);
   let failures = 0;
@@ -84,6 +115,23 @@ async function validate(options) {
     }
   } catch (error) {
     console.log(`- FAIL: Could not validate version: ${error.message}`);
+    failures++;
+  }
+
+  console.log("");
+  console.log("## Package Configuration");
+
+  try {
+    for (const packageCheck of validatePackageConfig(root)) {
+      if (packageCheck.ok) {
+        console.log(`- OK: ${packageCheck.message}`);
+      } else {
+        console.log(`- FAIL: ${packageCheck.message}`);
+        failures++;
+      }
+    }
+  } catch (error) {
+    console.log(`- FAIL: Could not validate package configuration: ${error.message}`);
     failures++;
   }
 

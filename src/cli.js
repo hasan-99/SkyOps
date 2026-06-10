@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { install } = require("./commands/install");
 const { init } = require("./commands/init");
 const { link } = require("./commands/link");
 const { health } = require("./commands/health");
@@ -25,6 +26,7 @@ Usage:
   copilotops <command> [options]
 
 Commands:
+  install    Install/link CopilotOps assets into the target project safely
   init       Copy CopilotOps templates into the current project
   link       Link current project .github Copilot assets to central templates
   health     Check current project CopilotOps setup
@@ -42,9 +44,12 @@ Options:
 Examples:
   copilotops health
   copilotops validate
+  copilotops install --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps --dry-run
+  copilotops install --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps
   copilotops init --target C:\\SharedProjects\\CS_Datafactory_v2 --dry-run
   copilotops link --target C:\\SharedProjects\\CS_Datafactory_v2
   copilotops doctor --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps
+  npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --dry-run
 `);
 }
 
@@ -89,6 +94,8 @@ async function run(args) {
   const { command, options } = parseArgs(args);
 
   switch (command) {
+    case "install":
+      return install(options);
     case "init":
       return init(options);
     case "link":

@@ -8,6 +8,18 @@ CopilotOps follows semantic versioning:
 - `MINOR` version, like `1.1.0`, for new prompts, new skills, new CLI commands, or backward-compatible improvements.
 - `MAJOR` version, like `2.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [1.2.0] - Add Private GitHub npx Install Preparation
+
+### Added
+
+- `copilotops install` command.
+- Private GitHub repository npx install documentation.
+- Validation checks for private GitHub package readiness.
+
+### Notes
+
+Publishing is not performed by this change. Invited users can use the private GitHub repository through npx after they have repository access and GitHub authentication.
+
 ## [1.1.0] - Add Doctor Diagnostics
 
 ### Added
