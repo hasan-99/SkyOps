@@ -105,20 +105,20 @@ node ./bin/copilotops.js install --source C:\SharedProjects\CopilotOps --target 
 
 ```mermaid
 flowchart TD
-    A[Start in a repo] --> B[/status-line]
+    A[Start in a repo] --> B["/status-line"]
     B --> C{Need setup check?}
-    C -- Yes --> D[/sky-health]
+    C -- Yes --> D["/sky-health"]
     D --> E{Warnings or confusion?}
-    E -- Yes --> F[/sky-doctor]
+    E -- Yes --> F["/sky-doctor"]
     E -- No --> G{Need architecture view?}
     C -- No --> G
-    G -- Yes --> H[/sky-map]
+    G -- Yes --> H["/sky-map"]
     G -- No --> I{Need change or bug work?}
-    I -- Bug --> J[/sky-debug]
-    I -- Small task --> K[/sky-fast]
-    I -- Large task --> L[/sky-task]
-    I -- Explanation --> M[/sky-explain]
-    I -- Documentation --> N[/sky-docs]
+    I -- Bug --> J["/sky-debug"]
+    I -- Small task --> K["/sky-fast"]
+    I -- Large task --> L["/sky-task"]
+    I -- Explanation --> M["/sky-explain"]
+    I -- Documentation --> N["/sky-docs"]
 ```
 
 ## Internal Specialist Skills
