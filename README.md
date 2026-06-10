@@ -28,25 +28,25 @@ Run from inside a target project:
 
 ```bash
 cd C:\SharedProjects\CS_Datafactory_v2
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --dry-run
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --dry-run
 ```
 
 If the dry-run looks correct:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install
 ```
 
 Run with an explicit target:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --target C:\SharedProjects\CS_Datafactory_v2 --dry-run
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --target C:\SharedProjects\CS_Datafactory_v2 --dry-run
 ```
 
 Deep diagnostics:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main doctor --target C:\SharedProjects\CS_Datafactory_v2
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev doctor --target C:\SharedProjects\CS_Datafactory_v2
 ```
 
 This model does not use npm publishing. Users need GitHub access to the private repo.
@@ -249,13 +249,13 @@ CopilotOps uses semantic versioning:
 4. Run:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --dry-run
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --dry-run
 ```
 
 5. If safe, run:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install
 ```
 
 ## Documentation
@@ -263,4 +263,5 @@ npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install
 * `docs/COMMAND_CATALOG.md`
 * `docs/TEAM_ONBOARDING.md`
 * `docs/PRIVATE_GITHUB_INSTALL.md`
+* `docs/PRIVATE_GITHUB_USER_GUIDE.html`
 * `docs/decisions/0001-use-copilotops-as-shared-ai-tooling.md`

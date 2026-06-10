@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CopilotOps Private GitHub User Guide</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #18212f;
+      --muted: #5a6678;
+      --border: #d9e1ec;
+      --accent: #2457d6;
+      --accent-soft: #eaf0ff;
+      --good: #0f7a4f;
+      --warn: #a15c00;
+      --shadow: 0 10px 30px rgba(24, 33, 47, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f2f6ff 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+    }
+    h1, h2, h3 {
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 { font-size: 32px; }
+    h2 { font-size: 24px; margin-top: 28px; }
+    h3 { font-size: 18px; margin-top: 0; }
+    p { margin: 0 0 12px; color: var(--text); }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .steps {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .steps li { margin-bottom: 10px; }
+    .cmd {
+      display: block;
+      padding: 12px 14px;
+      margin: 10px 0 0;
+      background: #101828;
+      color: #f8fafc;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #f4f7fb;
+      font-size: 14px;
+    }
+    tr:last-child td { border-bottom: 0; }
+    code, pre {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #f4f8ff;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff8ee;
+    }
+    .good {
+      border-left-color: var(--good);
+      background: #effaf4;
+    }
+    .small {
+      font-size: 14px;
+    }
+    .case-list {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .case {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+    .case strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 800px) {
+      .grid.two, .case-list { grid-template-columns: 1fr; }
+      .page { padding: 18px 12px 36px; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">CopilotOps Framework</div>
+      <h1>Private GitHub User Guide</h1>
+      <p class="muted">Simple steps for invited users who accepted the repository invite and need to use CopilotOps safely.</p>
+      <div class="note good small">
+        Use this guide if you want the easiest path: accept the GitHub invite, open your project, run a dry-run install, then apply it if the result looks correct.
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>Quick Start</h2>
+        <ol class="steps">
+          <li>Accept the GitHub invite to <code>CopilotOps</code>.</li>
+          <li>Make sure Git and Node.js are installed.</li>
+          <li>Open the target project folder.</li>
+          <li>Run a dry-run install.</li>
+          <li>Review the output.</li>
+          <li>Run the real install if it looks safe.</li>
+          <li>Open GitHub Copilot in the project and test the prompts.</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <h2>What You Need</h2>
+        <ul class="steps">
+          <li>GitHub invite accepted for the private repo.</li>
+          <li>Git installed on your machine.</li>
+          <li>Node.js 18 or newer.</li>
+          <li>Access to the target project folder.</li>
+          <li>GitHub sign-in in VS Code or Git authentication already set up.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Step-by-Step</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>1. Accept The Invite</h3>
+          <p>Open the GitHub invitation email or the repo page and accept access to the private repository.</p>
+          <div class="note small">
+            After acceptance, you should be able to open the repo page in your browser without being blocked.
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>2. Check Tools</h3>
+          <p>Confirm Git and Node are present before you try the command.</p>
+          <div class="cmd">git --version
+node --version
+npm --version</div>
+        </div>
+
+        <div class="panel">
+          <h3>3. Open Your Project</h3>
+          <p>Go into the project that should receive the CopilotOps assets.</p>
+          <div class="cmd">cd C:\SharedProjects\CS_Datafactory_v2</div>
+        </div>
+
+        <div class="panel">
+          <h3>4. Run Dry-Run First</h3>
+          <p>Dry-run shows what would happen without changing files.</p>
+          <div class="cmd">npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --dry-run</div>
+        </div>
+
+        <div class="panel">
+          <h3>5. Review The Result</h3>
+          <p>Check that only Copilot-specific files are being linked and that <code>.github/workflows</code> is not touched.</p>
+          <div class="note warn small">
+            If you see missing access, login issues, or unexpected warnings, stop and fix that before applying changes.
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>6. Apply It</h3>
+          <p>If the dry-run looks safe, run the same command without <code>--dry-run</code>.</p>
+          <div class="cmd">npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Common Cases</h2>
+      <div class="case-list">
+        <div class="case">
+          <strong>Repo invite accepted, but command fails</strong>
+          Sign in to GitHub in VS Code or Git again. The repo is private, so the machine must authenticate correctly.
+        </div>
+        <div class="case">
+          <strong>You are not inside the project folder</strong>
+          Use <code>--target</code> to point the command at the project you want to set up.
+        </div>
+        <div class="case">
+          <strong>You only want to check readiness</strong>
+          Run <code>doctor</code> to inspect the framework and target together.
+        </div>
+        <div class="case">
+          <strong>You only want a quick project check</strong>
+          Run <code>health</code> to inspect the target project setup.
+        </div>
+        <div class="case">
+          <strong>You need a safe undo</strong>
+          Use <code>rollback</code> to restore the backed up Copilot assets.
+        </div>
+        <div class="case">
+          <strong>You want to understand the repo shape</strong>
+          Use <code>/sky-map</code> for a simple architecture map.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Commands</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>What It Does</th>
+            <th>When To Use It</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>install</code></td>
+            <td>Safely links Copilot-specific assets into the target project.</td>
+            <td>Best one-command setup for invited users.</td>
+          </tr>
+          <tr>
+            <td><code>doctor</code></td>
+            <td>Checks framework files, version matching, target readiness, Git, and warnings.</td>
+            <td>Use when you want the strongest diagnostic check.</td>
+          </tr>
+          <tr>
+            <td><code>health</code></td>
+            <td>Checks the current project setup.</td>
+            <td>Quick target check.</td>
+          </tr>
+          <tr>
+            <td><code>validate</code></td>
+            <td>Checks the CopilotOps framework repo itself.</td>
+            <td>Before sharing or pushing framework changes.</td>
+          </tr>
+          <tr>
+            <td><code>rollback</code></td>
+            <td>Restores backed up Copilot assets.</td>
+            <td>Use if you need to undo a link or install.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Prompts And Skills</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Read-Only Prompts</h3>
+          <ul class="steps">
+            <li><code>/status-line</code> - fast repo/session status.</li>
+            <li><code>/sky-health</code> - quick setup check.</li>
+            <li><code>/sky-doctor</code> - deeper diagnostics.</li>
+            <li><code>/sky-map</code> - architecture map.</li>
+            <li><code>/sky-explain</code> - simple explanation.</li>
+            <li><code>/sky-docs</code> - write docs.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Planning Prompts</h3>
+          <ul class="steps">
+            <li><code>/sky-fast</code> - small and medium tasks.</li>
+            <li><code>/sky-task</code> - large or cross-layer work.</li>
+            <li><code>/sky-debug</code> - bug and root cause work.</li>
+          </ul>
+          <div class="note small">
+            Planning prompts stay read-only until the user types <code>APPROVE PLAN</code>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Safety</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>What Changes</h3>
+          <p>Only Copilot-specific assets are linked or copied:</p>
+          <ul class="steps">
+            <li><code>.github/copilot-instructions.md</code></li>
+            <li><code>.github/instructions</code></li>
+            <li><code>.github/prompts</code></li>
+            <li><code>.github/skills</code></li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>What It Must Not Touch</h3>
+          <ul class="steps">
+            <li><code>.github/workflows</code></li>
+            <li>Any product source files</li>
+            <li>Anything outside the target project you chose</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Simple Rule Of Thumb</h2>
+      <div class="note good">
+        If you are invited to the private repo, you do not need a separate installer. Open your project, run the dry-run command, and only apply it after the output looks safe.
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -49,7 +49,7 @@ Examples:
   copilotops init --target C:\\SharedProjects\\CS_Datafactory_v2 --dry-run
   copilotops link --target C:\\SharedProjects\\CS_Datafactory_v2
   copilotops doctor --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps
-  npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --dry-run
+  npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --dry-run
 `);
 }
 

@@ -40,19 +40,19 @@ Run from inside a target project:
 
 ```bash
 cd C:\SharedProjects\CS_Datafactory_v2
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --dry-run
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --dry-run
 ```
 
 If the dry-run looks correct:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install
 ```
 
 Or run with an explicit target:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --target C:\SharedProjects\CS_Datafactory_v2 --dry-run
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install --target C:\SharedProjects\CS_Datafactory_v2 --dry-run
 ```
 
 ## Diagnostics
@@ -60,7 +60,7 @@ npx --yes git+https://github.com/hjahouse/CopilotOps.git#main install --target C
 Run:
 
 ```bash
-npx --yes git+https://github.com/hjahouse/CopilotOps.git#main doctor --target C:\SharedProjects\CS_Datafactory_v2
+npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev doctor --target C:\SharedProjects\CS_Datafactory_v2
 ```
 
 ## Safety
