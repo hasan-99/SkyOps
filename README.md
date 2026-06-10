@@ -24,6 +24,43 @@ These are used by the user prompts and are not normally invoked directly:
 - `sky-performance`
 - `sky-tests`
 
+## Advanced Utility Commands
+
+- `/sky-health` - verifies CopilotOps setup and repository readiness.
+- `/sky-map` - creates a lightweight architecture map for a repository.
+
+## Token-Saving Principle
+
+Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
+
+CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+
+## Recommended First Run
+
+When entering any project, run:
+
+```text
+/status-line
+```
+
+Then run:
+
+```text
+/sky-health
+```
+
+For a high-level understanding of a repo, run:
+
+```text
+/sky-map
+```
+
+## Documentation
+
+* `docs/COMMAND_CATALOG.md`
+* `docs/TEAM_ONBOARDING.md`
+* `docs/decisions/0001-use-copilotops-as-shared-ai-tooling.md`
+
 ## Structure
 
 ```text

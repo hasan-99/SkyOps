@@ -21,6 +21,12 @@ Do not edit files, run builds, run tests, run migrations, install packages, or g
 
 No `APPROVE PLAN` = no code changes. Investigation and reading are allowed before approval; fixing is not.
 
+## Token-Saving Principle
+
+Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
+
+CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+
 ## Hard Rules (Always Follow)
 
 1. **No over-engineering.** Fix the bug, nothing else. No refactors, no extra hardening, no "while we're here" changes.

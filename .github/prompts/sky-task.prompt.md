@@ -29,6 +29,12 @@ Do not output executable implementation code before approval.
 
 If the user asks for implementation before approval, explain that `/sky-task` requires plan approval first.
 
+## Token-Saving Principle
+
+Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
+
+CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+
 ## Hard Rules (Always Follow)
 
 These rules are non-negotiable. They keep planning fast and token-cheap even on large tasks.
