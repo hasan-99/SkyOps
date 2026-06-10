@@ -1,0 +1,30 @@
+{
+  "name": "copilotops",
+  "version": "1.1.0",
+  "description": "CopilotOps Framework: shared GitHub Copilot prompts, skills, instructions, validation, and setup tooling for teams.",
+  "type": "commonjs",
+  "bin": {
+    "copilotops": "./bin/copilotops.js"
+  },
+  "scripts": {
+    "start": "node ./bin/copilotops.js",
+    "health": "node ./bin/copilotops.js health",
+    "validate": "node ./bin/copilotops.js validate",
+    "doctor": "node ./bin/copilotops.js doctor",
+    "test:local": "node ./bin/copilotops.js --help"
+  },
+  "keywords": [
+    "github-copilot",
+    "copilot",
+    "prompts",
+    "skills",
+    "developer-tools",
+    "ai-engineering"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  }
+}

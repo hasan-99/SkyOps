@@ -50,6 +50,20 @@ To understand the repo:
 /sky-map
 ```
 
+## Deep Diagnostics
+
+If `/sky-health` reports warnings or the setup does not look right, run:
+
+```text
+/sky-doctor
+```
+
+For CLI diagnostics, run:
+
+```bash
+copilotops doctor --target C:\SharedProjects\CS_Datafactory_v2 --source C:\SharedProjects\CopilotOps
+```
+
 ## Common Workflows
 
 ### Small or Medium Task

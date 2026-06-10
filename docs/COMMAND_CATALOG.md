@@ -20,6 +20,7 @@ CopilotOps is designed to reduce token usage by using focused parallel specialis
 | `/status-line` | Need repo/session status | Compact dashboard/status block | Read-only |
 | `/sky-health` | Need to verify CopilotOps setup and repo readiness | Health check report | Read-only |
 | `/sky-map` | Need a high-level architecture map | Project map and Mermaid diagram | Read-only |
+| `/sky-doctor` | Deep setup/repo diagnostic when `/sky-health` is not enough | Diagnostic report + fix recommendations | Read-only |
 
 ## Internal Specialist Skills
 
@@ -68,4 +69,10 @@ For architecture discovery:
 
 ```text
 /sky-map
+```
+
+For deep setup diagnostics:
+
+```text
+/sky-doctor
 ```
