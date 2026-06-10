@@ -233,14 +233,6 @@ CopilotOps uses semantic versioning:
 * `1.3.0` for new prompts, new skills, or new CLI commands.
 * `2.0.0` for breaking changes or changed safety behavior.
 
-## Admin Checklist
-
-1. Keep the GitHub repo private.
-2. Invite approved users or a GitHub team.
-3. Tell users to authenticate GitHub in Git or VS Code.
-4. Ask users to run `install --dry-run` first.
-5. Review warnings before real install.
-
 ## User Checklist
 
 1. Accept the GitHub repo invite.
@@ -264,4 +256,5 @@ npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install
 * `docs/TEAM_ONBOARDING.md`
 * `docs/PRIVATE_GITHUB_INSTALL.md`
 * `docs/PRIVATE_GITHUB_USER_GUIDE.html`
+* `docs/ADMIN_SETUP.md`
 * `docs/decisions/0001-use-copilotops-as-shared-ai-tooling.md`
