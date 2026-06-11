@@ -20,6 +20,22 @@ Current framework version:
 - CLI commands for install, link, health, doctor, validate, and rollback.
 - Private GitHub repo install for invited users.
 
+## Current Scope
+
+This version of CopilotOps Framework is prepared for the Web Services team and focuses on backend development work.
+
+It is designed for repositories that use patterns such as:
+
+- C# / .NET backend services.
+- APIs, controllers, handlers, services, validators, and DTOs.
+- Data access, EF Core, repositories, queries, and migrations.
+- Security, authorization, tenant isolation, and sensitive data checks.
+- Backend testing and regression verification.
+
+> [!WARNING]
+> This framework version is being tested first with the Web Services workflow.
+> If the results are good, we will create or adapt versions for other teams so each team gets prompts, skills, and instructions that match its own work.
+
 ## Private GitHub Install
 
 Approved users can install from the private GitHub repo after they are invited and authenticated with GitHub.
