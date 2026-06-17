@@ -7,14 +7,14 @@ It gives projects one shared source for GitHub Copilot instructions, reusable pr
 Current framework version:
 
 ```text
-1.2.0
+1.3.0
 ```
 
 ## What It Provides
 
 - Shared GitHub Copilot instructions.
 - Shared user prompts such as `/sky-task`, `/sky-fast`, `/sky-debug`, `/sky-health`, `/sky-map`, and `/sky-doctor`.
-- Internal specialist skills for API, service, data, security, performance, and tests.
+- Internal specialist skills for API, service, data, security, performance, and verification.
 - Token-saving specialist lane model.
 - Planning safety with `APPROVE PLAN`.
 - CLI commands for install, link, health, doctor, validate, and rollback.
@@ -105,17 +105,22 @@ node ./bin/copilotops.js install --source C:\SharedProjects\CopilotOps --target 
 
 ## Prompt Commands
 
-| Prompt | Use When | Output | Safety |
+Prompt commands are the commands the user types in Copilot Chat. Use these first.
+
+| Command | What It Does | Use When | Safety |
 |---|---|---|---|
-| `/status-line` | You want quick repo/session status | Compact status block | Read-only |
-| `/sky-health` | You want to verify CopilotOps setup | Health report | Read-only |
-| `/sky-doctor` | `/sky-health` is not enough or setup looks wrong | Diagnostic report and fixes | Read-only |
-| `/sky-map` | You need a high-level architecture map | Project map and Mermaid diagram | Read-only |
-| `/sky-explain` | You need code or flow explained simply | Plain-language explanation | Read-only |
-| `/sky-docs` | You need documentation for a module, endpoint, or flow | Markdown documentation | Read-only |
-| `/sky-fast` | Small or medium backend task | Compact plan | Waits for `APPROVE PLAN` |
-| `/sky-task` | Large, risky, or cross-layer backend work | Full implementation plan | Waits for `APPROVE PLAN` |
-| `/sky-debug` | Bug, exception, failing test, wrong output | Root cause and fix plan | Waits for `APPROVE PLAN` |
+| `/status-line` | Shows quick repo/session status. | You want a fast starting point. | Read-only |
+| `/sky-health` | Checks CopilotOps setup and repo readiness. | You want to know if the repo is ready. | Read-only |
+| `/sky-doctor` | Runs deeper setup diagnostics and gives fix recommendations. | `/sky-health` shows warnings or setup looks wrong. | Read-only |
+| `/sky-map` | Builds a high-level architecture map. | You are new to a repo or need the main project/layer map. | Read-only |
+| `/sky-explain` | Explains code, flow, or behavior in simple language. | You need to understand something before changing it. | Read-only |
+| `/sky-docs` | Creates clean documentation for a feature, endpoint, module, or flow. | You need markdown documentation from code. | Read-only / doc-focused |
+| `/sky-pr` | Creates PR title/description from current changes. | You finished changes and need a clean PR summary. | Read-only |
+| `/sky-investigate` | Investigates an issue with evidence and safe checks. | You need facts before deciding a fix. | Read-only |
+| `/sky-forensics` | Reviews incident/data evidence carefully. | You need deeper incident or data investigation. | Read-only |
+| `/sky-fast` | Makes a compact implementation plan. | Small or medium backend task. | Waits for `APPROVE PLAN` |
+| `/sky-task` | Makes a full implementation plan using specialist lanes. | Large, risky, or cross-layer backend work. | Waits for `APPROVE PLAN` |
+| `/sky-debug` | Finds root cause and proposes a small fix plan. | Bug, exception, failing test, or wrong output. | Waits for `APPROVE PLAN` |
 
 ## Choosing The Right Prompt
 
@@ -137,18 +142,28 @@ flowchart TD
     I -- Documentation --> N["/sky-docs"]
 ```
 
-## Internal Specialist Skills
+## Specialist Skills
 
-These skills are normally used by `/sky-task`, `/sky-fast`, and `/sky-debug`. They keep analysis focused and reduce token usage.
+Skills are internal helpers. Users normally do not type these directly. Prompt commands trigger them when their lane is useful.
 
-| Skill | Use For | Typical Questions |
-|---|---|---|
-| `sky-api` | Controllers, endpoints, DTOs, routes, response contracts | What API files change? Does the contract change? |
-| `sky-service` | Services, handlers, validators, mappings, DI, business logic | What business logic changes? What side effects exist? |
-| `sky-data` | EF Core, DbContext, entities, repositories, migrations, queries | What data model/query changes are needed? |
-| `sky-security` | Auth, authorization, tenant isolation, secrets, sensitive data | Does this affect permissions or sensitive data? |
-| `sky-performance` | Query shape, async flow, hot paths, payload size, scalability | Could this create slow queries or heavy payloads? |
-| `sky-tests` | Existing test patterns, regression coverage, manual verification | What tests or manual checks prove this works? |
+| Skill | Triggered By | What It Checks | Use When |
+|---|---|---|---|
+| `sky-api` | `/sky-task`, `/sky-fast`, `/sky-debug` | Controllers, endpoints, routes, DTOs, response contracts. | API files or contracts may change. |
+| `sky-service` | `/sky-task`, `/sky-fast`, `/sky-debug` | Services, handlers, validators, mappings, DI, business logic. | Business logic or service flow may change. |
+| `sky-data` | `/sky-task`, `/sky-fast`, `/sky-debug`, `/sky-investigate` | EF Core, DbContext, entities, repositories, migrations, queries. | Data model, SQL, query, or migration behavior may change. |
+| `sky-security` | `/sky-task`, `/sky-fast`, `/sky-debug` | Auth, authorization, tenant isolation, secrets, sensitive data. | Permissions, ownership, or sensitive data may be affected. |
+| `sky-performance` | `/sky-task`, `/sky-fast`, `/sky-debug` | Query shape, async flow, hot paths, payload size, scalability. | A change may slow a query, endpoint, or background flow. |
+| `sky-verification` | `/sky-task`, `/sky-fast`, `/sky-debug`, `/sky-investigate`, `/sky-forensics` | Manual verification, read-only SQL checks, API checks, log checks, live-safe validation. | You need practical checks that prove the result is safe. |
+| `sky-evidence` | `/sky-investigate`, `/sky-forensics`, `/sky-pr` | Links claims to proof from code, SQL, logs, config, or repo files. | A finding needs evidence before acting on it. |
+| `sky-risk` | `/sky-task`, `/sky-pr`, `/sky-investigate`, `/sky-forensics` | What can break, risk level, mitigation, rollback, safe next checks. | The change may affect production, data, security, or shared behavior. |
+| `sky-decision` | `/sky-investigate`, `/sky-forensics`, `/sky-pr` | Compares options, tradeoffs, risk, effort, and reversibility. | There are two or more realistic paths and you need a recommendation. |
+| `sky-change-summary` | `/sky-pr` | Summarizes current git changes with small focused diffs when needed. | You need a PR summary, handoff note, or change explanation. |
+
+Simple rule:
+
+- Type a prompt command when you need help.
+- Let the prompt command choose the specialist skills.
+- Use `APPROVE PLAN` only when you are ready for code changes.
 
 ## Token-Saving Specialist Lane Model
 
@@ -169,7 +184,7 @@ flowchart LR
     C --> D2[Service lane]
     C --> D3[Data lane]
     C --> D4[Security lane]
-    C --> D5[Tests lane]
+    C --> D5[Verification lane]
     D1 --> E[Merged plan]
     D2 --> E
     D3 --> E
@@ -272,5 +287,6 @@ npx --yes git+https://github.com/hjahouse/CopilotOps.git#dev install
 * `docs/TEAM_ONBOARDING.md`
 * `docs/PRIVATE_GITHUB_INSTALL.md`
 * `docs/PRIVATE_GITHUB_USER_GUIDE.html`
+* `docs/COPILOTOPS_FRAMEWORK_SHOWCASE.html`
 * `docs/ADMIN_SETUP.md`
 * `docs/decisions/0001-use-copilotops-as-shared-ai-tooling.md`

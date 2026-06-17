@@ -54,7 +54,7 @@ Use these specialist skills as separate focused lanes when useful:
 - `sky-data` for EF Core, DbContext, entities, repositories, migrations, transactions, and query behavior.
 - `sky-security` for authentication, authorization, tenant isolation, secrets, sensitive data, and unsafe inputs.
 - `sky-performance` for EF query performance, async behavior, payload size, caching, hot paths, and scalability.
-- `sky-tests` for existing test patterns, regression coverage, manual verification, and acceptance criteria.
+- `sky-verification` for manual verification, read-only SQL/data checks, API checks, log checks, live-safe validation, and acceptance criteria.
 
 Always run the relevant specialist skills as parallel agents, dispatched together in one batch. This is required, not optional.
 
@@ -98,7 +98,7 @@ Use for endpoint changes, service changes, new backend features, repository upda
 
 Targets:
 - inspect up to 15 files total where possible
-- call API, service, data, and tests only when relevant
+- call API, service, data, and verification only when relevant
 - include security/performance summary
 
 ### Deep
@@ -214,7 +214,7 @@ Produce the final plan in this structure:
 - **Data:** [summary or N/A]
 - **Security:** [summary or N/A]
 - **Performance:** [summary or N/A]
-- **Tests:** [summary or N/A]
+- **Verification:** [summary or N/A]
 
 ## Files To Change
 | File | Action | Reason |

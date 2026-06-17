@@ -31,7 +31,7 @@ CopilotOps is designed to reduce token usage by using focused parallel specialis
 | `sky-data` | EF Core, DbContext, entities, repositories, migrations, queries |
 | `sky-security` | Auth, authorization, tenant isolation, secrets, sensitive data |
 | `sky-performance` | Query shape, async flow, hot paths, payload size, scalability |
-| `sky-tests` | Existing test patterns, regression coverage, manual verification |
+| `sky-verification` | Manual verification, read-only SQL/data checks, API checks, log checks, and live-safe validation |
 
 ## Recommended Usage
 

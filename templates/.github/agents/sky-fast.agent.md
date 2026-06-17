@@ -74,7 +74,7 @@ Use parallel agents to save time and tokens. Dispatch the relevant lanes togethe
 * API: controllers, routes, request/response DTOs, status codes
 * Service: commands, handlers, validators, mappings, business logic
 * Data: EF entities, DbContext, repositories, migrations, queries
-* Tests: existing test patterns and manual verification
+* Verification: practical checks, manual verification, and live-safe validation
 * Security: auth, authorization, tenant isolation, over-posting, sensitive data
 * Performance: query shape, tracking, async flow, payload size
 
@@ -198,7 +198,7 @@ flowchart TD
 * **API:** [checked / not needed / risk found]
 * **Service:** [checked / not needed / risk found]
 * **Data:** [checked / not needed / risk found]
-* **Tests:** [checked / not needed / risk found]
+* **Verification:** [checked / not needed / risk found]
 * **Security:** [low / medium / high / not relevant]
 * **Performance:** [low / medium / high / not relevant]
 

@@ -80,7 +80,7 @@ When the bug crosses lanes, dispatch the relevant specialists together in one ba
 * `sky-service` if the fix changes business logic, validation, or DI.
 * `sky-security` if the fix touches auth, ownership, or sensitive data.
 * `sky-performance` if the fix touches a hot path, query shape, or async flow.
-* `sky-tests` to identify the test that should catch this bug.
+* `sky-verification` to identify the practical checks that should prove this bug is fixed.
 
 Only dispatch the lanes the bug actually touches. Keep each lane short.
 
@@ -150,7 +150,7 @@ flowchart TD
 * **API:** [checked / not needed / risk found]
 * **Service:** [checked / not needed / risk found]
 * **Data:** [checked / not needed / risk found]
-* **Tests:** [checked / not needed / risk found]
+* **Verification:** [checked / not needed / risk found]
 * **Security:** [low / medium / high / not relevant]
 * **Performance:** [low / medium / high / not relevant]
 

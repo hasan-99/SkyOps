@@ -8,6 +8,21 @@ CopilotOps follows semantic versioning:
 - `MINOR` version, like `1.1.0`, for new prompts, new skills, new CLI commands, or backward-compatible improvements.
 - `MAJOR` version, like `2.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [1.3.0] - Replace Test Skill With Verification Workflow
+
+### Changed
+
+- Replaced the old `sky-tests` specialist skill with `sky-verification`.
+- Updated planning and debug prompts to use the verification lane.
+- Updated README command and skill reference sections.
+- Kept `.github/skills` and `templates/.github/skills` aligned.
+
+### Added
+
+- Additional internal specialist skills for change summaries, decisions, evidence, and risk checks.
+- Prompt command documentation for investigation, PR, and forensics workflows.
+- HTML showcase for presenting CopilotOps workflow, parallel lanes, and token savings to the team.
+
 ## [1.2.0] - Add Private GitHub npx Install Preparation
 
 ### Added
