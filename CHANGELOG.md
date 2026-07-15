@@ -8,6 +8,25 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.1.0] - Grounding protocol, goal-backward verification, and memory
+
+Ideas adapted from a broader Claude Code workflow framework, refit to SkyOps' .NET 6 / SQL Server 2016 / no-automated-tests reality — taking the discipline, not the stack.
+
+### Added
+
+- **`standards/GROUNDING.md`** — one shared evidence law referenced by the skills: cite `file:line — "quoted"` or the finding is dropped; no hedging words; `INSUFFICIENT EVIDENCE` is a fail signal, not a silent pass; a deterministic severity→score rubric aligned to the SRV catalog (High/Medium/Low/Observation); and a spawning-discipline section (model-per-node + per-lane tool budgets).
+- **`sky-sql-destructive-guard`** — implementation-time guard that fires when destructive SQL/EF is being written (`DELETE`/`UPDATE` without `WHERE`, `TRUNCATE`, `DROP`, `ExecuteSqlRaw` variants, destructive migration `Down`, tenant-filter removal) and shows the scoped, safe alternative before it reaches a DB. Write-time counterpart to `sky-risk`'s new Hard Gate.
+- **`sky-learn` / `sky-recall`** — the only write-capable helpers, scoped append-only to a project-local `.skyops/knowledge/` store. `sky-learn` auto-captures reusable lessons (fixes, patterns, SRV gotchas, prefs) during work; `sky-recall` surfaces them at the start of a debug/investigate/fix/review so known fixes aren't re-derived.
+
+### Changed
+
+- **`sky-verification`** — rebuilt around a goal-backward **3-level check** (Truth → Exists/not-a-stub → **Wired**) tuned for C#: proves new services/controllers/hosted services/EF `DbSet`s/middleware/options are actually registered and reachable (DI, routing, `AddHostedService`, `MapControllers`), with C# stub tells (`NotImplementedException`, empty `catch`, fake-async, `Task.CompletedTask`). Now auto-triggers after C# edits and on "does this work / verify this".
+- **`sky-comment-triage`** — added a skeptic *refute-before-confirm* pass: a claim is only `Valid` if it survives an honest attempt to prove it wrong with evidence.
+- **`sky-review`** — added a repair-routing phase (each Required Change points at the command that fixes it) and a `Route` column; findings now follow the shared grounding law.
+- **`sky-evidence`, `sky-decision`, `sky-risk`** — now reference `GROUNDING.md`; `sky-risk` gained a deterministic Hard Gate for destructive patterns; `sky-decision` leads with one committed recommendation instead of a menu.
+- **`sky-map`** — now also emits a compact **Machine Map (JSON)** (layers, entrypoints, DI registrations, hosted services, `DbSet`s) that `sky-verification` can consume for its wiring check.
+- **`sky-doctor`** — added an optional **Change Diagnostic Mode**: three blind scans (requirement / code-diff / verification) that report where they disagree, for "the ticket says X but the code does Y" confusion.
+
 ## [2.0.0] - Rename to SkyOps, become a Claude Code plugin
 
 ### Changed

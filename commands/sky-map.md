@@ -96,6 +96,25 @@ flowchart TD
     T[Tests] --> B
 ```
 
+## Machine Map (JSON)
+
+A compact, structured version of the map so other skills (especially `sky-verification`'s wiring check) can consume it. Emit it inline; only write it to a file (`sky-map.json`) if the user explicitly asks — this command is read-only by default. Include only what you actually found; use `[]` for empty, don't guess.
+
+```json
+{
+  "repo": "[name]",
+  "targetFramework": ".NET 6 / unknown / mixed",
+  "projects": [{ "name": "X.csproj", "type": "API|Library|Worker|Tests|Unknown" }],
+  "entrypoints": ["Program.cs", "Startup.cs"],
+  "layers": { "api": ["..."], "service": ["..."], "data": ["..."] },
+  "diRegistrations": ["IFooService -> FooService", "AddHostedService<NightlyJob>"],
+  "controllers": ["FooController (route: api/foo)"],
+  "hostedServices": ["NightlyJob"],
+  "dbContexts": [{ "name": "AppDbContext", "dbSets": ["Orders", "Customers"] }],
+  "externalIntegrations": ["..."]
+}
+```
+
 ## Important Files To Know
 
 | File/Folder | Why It Matters |

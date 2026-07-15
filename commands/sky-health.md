@@ -109,6 +109,8 @@ Quick read: which CopilotOps prompts are actually available in this repo, and wh
 
 [One practical next step.]
 
+> Confused about a *change* rather than repo setup ("the ticket says X but the code does Y", "does this even work")? Use `/sky-doctor`'s **Change Diagnostic Mode** — it runs blind requirement / code / verification scans and reports the mismatch.
+
 ## Status Line
 
 ```text

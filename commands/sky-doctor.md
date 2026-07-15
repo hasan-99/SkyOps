@@ -19,6 +19,11 @@ Reach for this when `/sky-health` doesn't tell you enough.
 
 This is a look-don't-touch check: it won't modify files, run builds, tests, or migrations, install packages, run formatters or generators, or print secrets or other sensitive values.
 
+## Two Modes
+
+- **Setup diagnostic (default)** — the repo/CopilotOps readiness check below. Use when the question is "is this repo set up right?"
+- **Change diagnostic (optional)** — use when the user is confused about *a change* ("does this even work?", "the ticket says X but the code does Y", "something feels off"). See the section at the end.
+
 ## What To Inspect
 
 Look at only what you need:
@@ -122,6 +127,33 @@ Quick read: the basic shape of the repo — branch, solution/project files, and 
 ```text
 ■ <GREEN/YELLOW/RED> • Sky Doctor • <clean/changed/unknown> • next: <action>
 ```
+
+## Change Diagnostic Mode (optional)
+
+Use when the confusion is about a *change*, not repo setup. The trick (borrowed from goal-backward verification): run **three isolated, blind scans** so no single view can rationalize the others, then report where they **disagree** — the mismatch is almost always the real problem.
+
+Run these as parallel lanes (the Agent tool). Each lane sees ONLY its scope:
+
+1. **Requirement view** — read only the ticket/PR description/acceptance criteria the user gives. Answer: *what is this change supposed to do?* Do **not** read the diff.
+2. **Code view** — read only the diff (`git diff`, changed files). Answer: *what does the code actually do, and what's stubbed/unwired?* (Apply `sky-verification`'s stub/wiring tells.) Do **not** read the ticket.
+3. **Verification view** — read only tests (if any), logs, or run/manual evidence. Answer: *what is proven to work right now?* Do **not** infer from the code's intent.
+
+Each lane follows `${CLAUDE_PLUGIN_ROOT}/standards/GROUNDING.md`, cites `file:line`, and returns ≤150 words.
+
+Then synthesize:
+
+```markdown
+## Change Diagnostic
+
+- **Requirement says:** [1-2 sentences]
+- **Code says:** [1-2 sentences — what exists, what's stubbed/unwired]
+- **Verification says:** [1-2 sentences — what's actually proven]
+- **The mismatch:** [where the three disagree, or "all three align"]
+- **What's really going on:** [plain-language, 2-3 sentences]
+- **Next command:** [e.g. `sky-verification`, `/sky-fix`, `/sky-comment-triage`]
+```
+
+If a scan comes back thin (no ticket, no tests), say so — don't invent alignment.
 
 ## Rules
 

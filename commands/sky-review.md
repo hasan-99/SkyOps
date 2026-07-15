@@ -9,6 +9,8 @@ disable-model-invocation: true
 
 You're the master review orchestrator. You coordinate review lanes rather than running one big monolithic review yourself: you build a review plan, dispatch focused specialists, aggregate their findings, validate those findings, assess risk, and generate the final report.
 
+Every lane and the final report follow `${CLAUDE_PLUGIN_ROOT}/standards/GROUNDING.md`: findings need `file:line` evidence or they are **dropped**; no hedging; unverifiable checks are `INSUFFICIENT EVIDENCE` and block an Approve.
+
 ---
 
 # Required Skills
@@ -172,6 +174,20 @@ Possible results:
 
 ---
 
+**Phase 10 — Route the repair.**
+
+Don't stop at a verdict — point each required change at the command that fixes it, so the report is actionable:
+
+* Single reviewer/PR comment to resolve → `/sky-comment-triage`
+* A bug to root-cause → `/sky-debug` (or `/sky-investigate` for backend/SQL/data/incident depth)
+* "Does it actually work / is it wired?" → `sky-verification`
+* A fork with 2+ real options → `sky-decision`
+* Plan a multi-step change → `/sky-task` (`/sky-fast` for small)
+
+Map each Required Change to its route in the output. Don't invent work — route only what the findings justify.
+
+---
+
 # Token Optimization Rules
 
 Read:
@@ -222,7 +238,8 @@ Then only matching SRV files in `${CLAUDE_PLUGIN_ROOT}/standards/`.
 
 ## Required Changes
 
-| Priority | Change | Reason |
+| Priority | Change | Reason | Route |
+| -------- | ------ | ------ | ----- |
 
 ## Findings
 

@@ -42,14 +42,22 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 | `status-line` | A terminal-style status readout: branch, git state, next action |
 | **`sky-async-guard`** | **New.** Catches sync-I/O-inside-async bugs the moment you write them — not in review |
 | **`sky-i18n-guard`** | **New.** Catches locale/timezone-dependent date parsing the moment you write it |
+| **`sky-sql-destructive-guard`** | **New.** Catches destructive SQL/EF (DELETE/UPDATE with no WHERE, TRUNCATE, DROP, dropped tenant filters) the moment you write it — with the scoped safe version |
+| **`sky-learn`** | **New.** Saves a reusable lesson (a fix, a pattern, an SRV gotcha) to `.skyops/knowledge/` — auto-fires when something worth remembering shows up |
+| **`sky-recall`** | **New.** Surfaces those saved lessons at the start of a debug/investigate/review, so known fixes aren't re-derived |
 
 ### Skills (background specialists — `sky-review` and `sky-task` call these for you)
 
 `sky-api`, `sky-data`, `sky-service`, `sky-security`, `sky-performance`, `sky-risk`, `sky-evidence`, `sky-decision`, `sky-verification`, `sky-change-summary`, `review-standards`.
 
+`sky-verification` is now goal-backward: it proves a C# change is not just written but actually **wired up** (registered in DI, routed, `AddHostedService`, `DbSet` present) and not a stub — and it auto-triggers after C# edits.
+
 ### Standards
 
-`standards/` holds the SRV catalog — the team's named list of known code-review issues (SRV-H-001 sync-in-async, SRV-H-006 locale/timezone bugs, and nine more). `sky-review` cites these by number in real PR comments instead of re-explaining the same issue every time.
+`standards/` holds two things:
+
+- **`SRV-CATALOG.md`** — the team's named list of known code-review issues (SRV-H-001 sync-in-async, SRV-H-006 locale/timezone bugs, and nine more). `sky-review` cites these by number in real PR comments instead of re-explaining the same issue every time.
+- **`GROUNDING.md`** — the shared evidence law every review lane follows: cite `file:line` or the finding is dropped, no hedging, `INSUFFICIENT EVIDENCE` blocks an approve, and a deterministic severity→score rubric. Keeps findings honest and consistent across skills.
 
 ## Why the two new guard commands exist
 

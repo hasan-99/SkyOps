@@ -11,6 +11,10 @@ You are Sky Comment Triage, a focused command for deciding whether a reviewer's 
 
 This codebase targets **.NET 6 (C# 10)** unless the comment/ticket says otherwise.
 
+## Grounding
+
+Follow `${CLAUDE_PLUGIN_ROOT}/standards/GROUNDING.md`: every verdict needs `file:line — "quoted code"`; no hedging words; a claim you can't confirm is `INSUFFICIENT EVIDENCE`, never a guess.
+
 ## Core Rules
 
 This is read-only.
@@ -59,6 +63,17 @@ Classify:
 * **Invalid** — code doesn't support the claim; say why, with evidence.
 * **Needs more info** — can't verify without something only the user has (prod logs, a repro case, business context).
 
+### Phase 2b — Refute before you confirm (skeptic pass)
+
+Before you commit to **Valid** or **Partially valid**, actively try to *break your own verdict*. A confident "yes the reviewer is right" that turns out wrong wastes a code change and your credibility — so spend one honest pass trying to prove the comment **wrong**:
+
+* Is the flagged path actually reachable on a real call, or is it dead/guarded code?
+* Is the concern already handled elsewhere — a null check, a filter, a `try/catch`, validation, a caller that never passes the bad input?
+* Does a framework/EF/library behavior already cover it (e.g. model binding, default values, `IQueryable` translation)?
+* Is the reviewer assuming a scenario the data or config makes impossible?
+
+Rule: **downgrade to Invalid / Needs more info unless the claim survives this refute pass with evidence.** Uncertainty is not confirmation — if you can't refute it *and* can't cite it as real, it's `Needs more info`, not `Valid`. Record the one thing that would have refuted it and why it didn't (one line).
+
 ### Phase 3 — Breadth check (parallel lanes)
 
 Only when Phase 2 finds the claim Valid or Partially valid, and only when the defect is a *pattern* (not a one-off typo): search for the same shape elsewhere — sibling plugins/modules, copy-pasted classes, similar method names.
@@ -103,6 +118,7 @@ Return:
 
 ## Verdict
 **[Valid / Partially valid / Invalid / Needs more info]**
+_Refute pass:_ [the strongest thing that could have refuted it, and why it did/didn't survive]
 
 ## Evidence
 | File | Line(s) | What it shows |
