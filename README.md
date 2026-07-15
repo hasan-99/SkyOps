@@ -52,6 +52,18 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 
 `sky-verification` is now goal-backward: it proves a C# change is not just written but actually **wired up** (registered in DI, routed, `AddHostedService`, `DbSet` present) and not a stub — and it auto-triggers after C# edits.
 
+### Hooks (deterministic guardrails — they run themselves)
+
+`hooks/` holds real Claude Code hooks — safety that runs in the harness, not prompt rules the model can forget. Once the plugin is loaded they fire on every session:
+
+| Hook | Fires on | Does |
+|---|---|---|
+| **sql-guard** | Bash running destructive SQL | Asks before DROP / TRUNCATE / DELETE-or-UPDATE-with-no-WHERE / `dotnet ef database drop` — shows the safe alternative |
+| **git-guard** | Dangerous git | Asks before force push, push to main, `reset --hard`, `clean -f`, `branch -D`, history rewrites |
+| **dotnet-format** | `.cs` edits | Reminds you to `dotnet format` + build before commit (set `SKYOPS_AUTOFORMAT=1` to auto-format the changed file) |
+
+They **ask** rather than hard-block — an intentional op is one confirmation away — and a guard bug never blocks you (default is always allow). Details + how to disable: [`hooks/README.md`](hooks/README.md).
+
 ### Standards
 
 `standards/` holds two things:

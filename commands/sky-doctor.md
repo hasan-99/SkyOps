@@ -1,58 +1,35 @@
 ---
 name: sky-doctor
-description: Read-only deep diagnostic prompt for CopilotOps setup, GitHub Copilot assets, repository readiness, and next actions.
+description: Read-only deep diagnostic for a C#/.NET repo and SkyOps readiness — digs into repo shape, Git state, .NET projects, and Claude Code context; also has a Change Diagnostic Mode for "does this change actually work". Explains what's healthy, what's risky, and what to do next.
 user-invocable: true
 disable-model-invocation: true
 ---
 
 # /sky-doctor
 
-You are Sky Doctor, a read-only deep diagnostic command for CopilotOps and GitHub Copilot project setup.
-
-## Purpose
-
-Reach for this when `/sky-health` doesn't tell you enough.
-
-`/sky-doctor` digs into the repository and explains what's healthy, what's missing, what's risky, and what to do next.
+You are Sky Doctor, a read-only deep diagnostic. Reach for this when `/sky-health` doesn't tell you enough — it digs into the repository and explains what's healthy, what's missing, what's risky, and what to do next.
 
 ## Safety
 
-This is a look-don't-touch check: it won't modify files, run builds, tests, or migrations, install packages, run formatters or generators, or print secrets or other sensitive values.
+Look-don't-touch: no editing files, no builds/tests/migrations/installs/formatters/generators, no destructive commands, and never print secrets or sensitive values.
 
 ## Two Modes
 
-- **Setup diagnostic (default)** — the repo/CopilotOps readiness check below. Use when the question is "is this repo set up right?"
+- **Setup diagnostic (default)** — the repo/SkyOps readiness check below. Use when the question is "is this repo set up right to work on?"
 - **Change diagnostic (optional)** — use when the user is confused about *a change* ("does this even work?", "the ticket says X but the code does Y", "something feels off"). See the section at the end.
 
-## What To Inspect
+## What To Inspect (setup diagnostic)
 
 Look at only what you need:
 
-- Current directory.
-- Git repo root.
+- Current directory and Git repo root.
 - Git branch and short status.
-- `.github/copilot-instructions.md`
-- `.github/instructions`
-- `.github/prompts`
-- `.github/skills`
-- `.github/workflows` presence only — don't inspect workflow secrets.
-- Prompt files and names.
-- Skill files and names.
-- Whether the important prompts exist:
-  - `/sky-task`
-  - `/sky-fast`
-  - `/sky-debug`
-  - `/sky-docs`
-  - `/sky-explain`
-  - `/status-line`
-  - `/sky-health`
-  - `/sky-map`
-  - `/sky-doctor`
-- Whether planning prompts mention `APPROVE PLAN`.
-- Solution/project files.
-- Test projects.
-- Possible target framework.
-- Any obvious setup conflict.
+- Solution files (`*.sln`) and project files (`*.csproj`); their layout (API / service / data / worker / tests).
+- Target framework from `.csproj` files (aiming for **.NET 6**); flag mixed frameworks.
+- Test projects (informational — this team may not have automated tests).
+- Claude Code context: `CLAUDE.md` presence and whether it looks current.
+- That SkyOps is available (the `/sky-*` commands are loaded).
+- Any obvious setup conflict (multiple solutions, orphaned projects, a detached HEAD, missing remote).
 
 ## Output Format
 
@@ -65,38 +42,7 @@ Return:
 - **Status:** GREEN / YELLOW / RED
 - **Summary:** [one sentence]
 
-## CopilotOps Integration
-
-Quick read: are the CopilotOps pieces actually in place, and is anything set up in a risky way?
-
-| Check | Status | Notes |
-|---|---|---|
-| Copilot instructions | pass/warn/fail | ... |
-| Instructions folder | pass/warn/fail | ... |
-| Prompts folder | pass/warn/fail | ... |
-| Skills folder | pass/warn/fail | ... |
-| Planning safety | pass/warn/fail | ... |
-| Workflows untouched | pass/warn/fail | ... |
-
-## Prompt Inventory
-
-Quick read: which CopilotOps prompts are actually available in this repo, and which are missing.
-
-| Prompt | Status |
-|---|---|
-| `/sky-task` | found/missing |
-| `/sky-fast` | found/missing |
-| `/sky-debug` | found/missing |
-| `/sky-docs` | found/missing |
-| `/sky-explain` | found/missing |
-| `/status-line` | found/missing |
-| `/sky-health` | found/missing |
-| `/sky-map` | found/missing |
-| `/sky-doctor` | found/missing |
-
 ## Repository Readiness
-
-Quick read: the basic shape of the repo — branch, solution/project files, and target framework.
 
 | Item | Value |
 |---|---|
@@ -107,6 +53,16 @@ Quick read: the basic shape of the repo — branch, solution/project files, and 
 | Project files found | yes/no |
 | Test projects found | yes/no |
 | Target framework | .NET 6 / unknown / mixed |
+
+## Working Context
+
+| Check | Status | Notes |
+|---|---|---|
+| Git repo healthy | pass/warn/fail | branch, remote, not detached |
+| .NET layout clear | pass/warn/fail | API/service/data recognizable |
+| Target framework | pass/warn/fail | .NET 6 expected |
+| `CLAUDE.md` present | pass/warn | grounds SkyOps skills; optional |
+| SkyOps commands available | pass/warn | `/sky-task`, `/sky-review`, `/sky-map`, `/sky-verification` |
 
 ## Risks
 
@@ -150,7 +106,7 @@ Then synthesize:
 - **Verification says:** [1-2 sentences — what's actually proven]
 - **The mismatch:** [where the three disagree, or "all three align"]
 - **What's really going on:** [plain-language, 2-3 sentences]
-- **Next command:** [e.g. `sky-verification`, `/sky-fix`, `/sky-comment-triage`]
+- **Next command:** [e.g. `sky-verification`, `/sky-debug`, `/sky-comment-triage`]
 ```
 
 If a scan comes back thin (no ticket, no tests), say so — don't invent alignment.

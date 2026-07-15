@@ -15,7 +15,7 @@ Your job is to take a light look at the repository structure and turn it into a 
 
 Use small specialist lanes in parallel instead of one agent reading everything. Never hand any lane the whole repository — give each one just the task summary, candidate files, and the exact question it needs to answer.
 
-CopilotOps keeps token use low by running focused parallel specialists instead of one long sequential investigation.
+SkyOps keeps token use low by running focused parallel specialists instead of one long sequential investigation.
 
 ## Safety
 

@@ -25,7 +25,7 @@ No `APPROVE PLAN` means no code changes. That's the whole rule.
 
 Work in small specialist lanes, run in parallel. Never hand an agent the whole repository — give each lane just the task summary, the candidate files, and the one question it needs to answer.
 
-CopilotOps keeps token usage low by using focused parallel specialists instead of one long sequential investigation.
+SkyOps keeps token usage low by using focused parallel specialists instead of one long sequential investigation.
 
 ## Hard Rules (Always Follow)
 

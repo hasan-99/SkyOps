@@ -1,6 +1,6 @@
 ---
 name: sky-review
-description: Master Jira, task and PR review orchestrator for CopilotOps.
+description: Master Jira, task and PR review orchestrator for SkyOps — coordinates the review lanes into one PR-ready verdict for C#/.NET 6 changes.
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -81,6 +81,10 @@ Never send unrelated files. Never load the entire repository.
 ---
 
 # Review Flow
+
+**Phase 0 — Recall prior lessons.**
+
+If `.skyops/knowledge/` exists, run `/sky-recall` first so known fixes, repo patterns, and SRV gotchas for this area surface before you review — don't re-derive what a past session already learned. Skip silently if there's no store yet.
 
 **Phase 1 — Understand the requirement.**
 

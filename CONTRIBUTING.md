@@ -22,6 +22,6 @@ Use semantic versioning:
 
 Before committing framework changes:
 
-1. Load it locally: `claude --plugin-dir C:\SharedProjects\CopilotOps` and confirm every command/skill shows up with no errors.
+1. Load it locally: `claude --plugin-dir C:\SharedProjects\SkyOps` and confirm every command/skill shows up with no errors.
 2. Check frontmatter: every command/skill needs a single clean `---`-delimited block with `name`, `description`, `user-invocable`, and `disable-model-invocation`.
 3. Grep for absolute paths (`C:\`, `~/`) — there should be none.

@@ -3,5 +3,6 @@
   "description": "SkyOps — a focused set of read-only planning, review, investigation, and implementation-time guard commands for C#/.NET 6 backend work in Claude Code. Built for Claude Code, not ported from anywhere else.",
   "author": {
     "name": "Hasan Jahouse"
-  }
+  },
+  "hooks": "./hooks/hooks.json"
 }

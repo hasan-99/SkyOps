@@ -8,6 +8,22 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.2.0] - Deterministic hooks, memory store, and legacy cleanup
+
+### Added
+
+- **`hooks/`** — the first real Claude Code hooks, wired via `.claude-plugin/plugin.json`. Deterministic guardrails that run in the harness instead of relying on the model to remember a rule:
+  - `sql-guard.js` (PreToolUse/Bash) — asks before destructive SQL executed through a real runner (DROP/TRUNCATE/DELETE-or-UPDATE-with-no-WHERE/`dotnet ef database drop`); ignores reading/grepping `.sql` files.
+  - `git-guard.js` (PreToolUse/Bash) — asks before force push, push to main/master, `reset --hard`, `clean -f`, `branch -D`, `checkout .`, and history rewrites.
+  - `dotnet-format.js` (PostToolUse/Edit·Write·MultiEdit) — reminds to `dotnet format` + build on `.cs` edits; opt-in auto-format via `SKYOPS_AUTOFORMAT=1`.
+  - Guards use `permissionDecision: "ask"` (surface + confirm, never hard-lock) and default to *allow* on any internal error, so a hook bug can never block work. See `hooks/README.md`.
+
+### Changed
+
+- **Memory store hardened.** `sky-learn`/`sky-recall` now use a defined `.skyops/knowledge/` layout (`README.md`, `INDEX.md`, `fixes.md`, `patterns.md`, `srv-notes.md`, `prefs.md`), meant to be committed as *team* memory. `sky-learn` maintains `INDEX.md` and bootstraps the folder on first use; `sky-recall` reads the index first for cheap, reliable lookup. `sky-review` gained a Phase 0 that recalls prior lessons before reviewing.
+- **Legacy drift fixed.** Renamed lingering "CopilotOps" references to SkyOps across `sky-fast`, `sky-map`, `sky-review`, `status-line`, and `CONTRIBUTING.md` (including a stale `C:\SharedProjects\CopilotOps` path). Rewrote `sky-health` and `sky-doctor`: they no longer health-check for the removed `.github/` Copilot-asset delivery mechanism — they now check real repo/.NET/Claude-Code readiness. `sky-doctor` keeps its new blind-3-scan Change Diagnostic Mode.
+- **Fixed a dangling reference** to a non-existent `/sky-fix` command (now routes to `/sky-debug`).
+
 ## [2.1.0] - Grounding protocol, goal-backward verification, and memory
 
 Ideas adapted from a broader Claude Code workflow framework, refit to SkyOps' .NET 6 / SQL Server 2016 / no-automated-tests reality — taking the discipline, not the stack.

@@ -28,7 +28,7 @@ Use read-only inspection to collect:
 - Latest commit summary, if available.
 - Remote repository URL, if available.
 - Important project files or solution files near the current directory.
-- Active Copilot instructions, prompts, and skills if present.
+- Active project instructions (e.g. `CLAUDE.md`) and available SkyOps commands/skills if present.
 - Session/context status if available from the tool.
 - Token/context estimate if exact token count is not available.
 
