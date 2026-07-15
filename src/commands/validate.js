@@ -10,17 +10,18 @@ const REQUIRED_FILES = [
   "CHANGELOG.md",
   "CONTRIBUTING.md",
   "src/commands/install.js",
+  "src/commands/codex-install.js",
   "src/commands/doctor.js",
   "templates/.github/copilot-instructions.md",
-  "templates/.github/prompts",
+  "templates/.github/agents",
   "templates/.github/skills",
   "templates/.github/instructions"
 ];
 
 const PLANNING_PROMPTS = [
-  "sky-task.prompt.md",
-  "sky-fast.prompt.md",
-  "sky-debug.prompt.md"
+  "sky-task.agent.md",
+  "sky-fast.agent.md",
+  "sky-debug.agent.md"
 ];
 
 function validateVersionMatch(root) {
@@ -136,12 +137,12 @@ async function validate(options) {
   }
 
   console.log("");
-  console.log("## Planning Prompt Safety");
+  console.log("## Planning Agent Safety");
 
-  const promptsDir = path.join(root, "templates", ".github", "prompts");
+  const agentsDir = path.join(root, "templates", ".github", "agents");
 
   for (const prompt of PLANNING_PROMPTS) {
-    const p = path.join(promptsDir, prompt);
+    const p = path.join(agentsDir, prompt);
 
     if (!exists(p)) {
       console.log(`- WARN: ${prompt} missing`);

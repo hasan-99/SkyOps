@@ -18,6 +18,7 @@ Current framework version:
 - Token-saving specialist lane model.
 - Planning safety with `APPROVE PLAN`.
 - CLI commands for install, link, health, doctor, validate, and rollback.
+- Codex install helper that copies CopilotOps skills and agent commands into the local Codex skills directory.
 - Private GitHub repo install for invited users.
 
 ## Current Scope
@@ -87,6 +88,7 @@ flowchart TD
 | Command | Use When | Changes Files? | Notes |
 |---|---|---:|---|
 | `copilotops install` | Standard one-command project setup | Yes, unless `--dry-run` | Links Copilot-specific `.github` assets safely |
+| `copilotops codex-install` | Make CopilotOps skills available in Codex | Yes, unless `--dry-run` | Copies `.github/skills` and converts `.github/agents/*.agent.md` to Codex skills |
 | `copilotops init` | Copy templates instead of linking | Yes, unless `--dry-run` | Useful when a project needs a snapshot |
 | `copilotops link` | Link project assets to central templates | Yes, unless `--dry-run` | Best for shared source-of-truth workflow |
 | `copilotops health` | Check one target project | No | Fast project readiness check |
@@ -101,6 +103,26 @@ node ./bin/copilotops.js --help
 node ./bin/copilotops.js validate --source C:\SharedProjects\CopilotOps
 node ./bin/copilotops.js doctor --source C:\SharedProjects\CopilotOps --target C:\SharedProjects\CS_Datafactory_v2
 node ./bin/copilotops.js install --source C:\SharedProjects\CopilotOps --target C:\SharedProjects\CS_Datafactory_v2 --dry-run
+node ./bin/copilotops.js codex-install --source C:\SharedProjects\CopilotOps --dry-run
+```
+
+## Codex Install
+
+Codex does not automatically load GitHub Copilot `.github/agents` or `.github/skills` from a repository. To use these workflows in Codex, copy them into the Codex skills directory:
+
+```bash
+cd C:\SharedProjects\CopilotOps
+node .\bin\copilotops.js codex-install --dry-run
+node .\bin\copilotops.js codex-install
+```
+
+Then open a new Codex session. Use the workflows by name, for example:
+
+```text
+use $status-line to show quick repo/session status
+use $sky-task to plan this backend change
+use $sky-health to check this repository
+use $sky-debug to investigate this bug
 ```
 
 ## Prompt Commands
@@ -241,14 +263,14 @@ CopilotOps
 |   `-- lib/
 |-- .github/
 |   |-- copilot-instructions.md
+|   |-- agents/
 |   |-- instructions/
-|   |-- prompts/
 |   `-- skills/
 |-- templates/
 |   `-- .github/
 |       |-- copilot-instructions.md
+|       |-- agents/
 |       |-- instructions/
-|       |-- prompts/
 |       `-- skills/
 |-- docs/
 |-- VERSION

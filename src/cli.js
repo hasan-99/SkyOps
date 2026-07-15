@@ -7,6 +7,7 @@ const { health } = require("./commands/health");
 const { validate } = require("./commands/validate");
 const { rollback } = require("./commands/rollback");
 const { doctor } = require("./commands/doctor");
+const { codexInstall } = require("./commands/codex-install");
 
 function getVersion() {
   try {
@@ -27,6 +28,8 @@ Usage:
 
 Commands:
   install    Install/link CopilotOps assets into the target project safely
+  codex-install
+             Copy CopilotOps skills/agents into the local Codex skills directory
   init       Copy CopilotOps templates into the current project
   link       Link current project .github Copilot assets to central templates
   health     Check current project CopilotOps setup
@@ -37,6 +40,7 @@ Commands:
 Options:
   --target <path>       Target project path. Defaults to current directory.
   --source <path>       CopilotOps repo path. Defaults to current repo.
+  --codex-home <path>   Codex home path. Defaults to CODEX_HOME or user .codex.
   --dry-run             Show what would happen without changing files.
   --force               Replace existing backups/links only when safe.
   --help                Show help.
@@ -45,6 +49,8 @@ Examples:
   copilotops health
   copilotops validate
   copilotops install --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps --dry-run
+  copilotops codex-install --source C:\\SharedProjects\\CopilotOps --dry-run
+  copilotops codex-install --source C:\\SharedProjects\\CopilotOps
   copilotops install --target C:\\SharedProjects\\CS_Datafactory_v2 --source C:\\SharedProjects\\CopilotOps
   copilotops init --target C:\\SharedProjects\\CS_Datafactory_v2 --dry-run
   copilotops link --target C:\\SharedProjects\\CS_Datafactory_v2
@@ -60,7 +66,8 @@ function parseArgs(args) {
       target: process.cwd(),
       source: path.join(__dirname, ".."),
       dryRun: false,
-      force: false
+      force: false,
+      codexHome: null
     }
   };
 
@@ -71,6 +78,8 @@ function parseArgs(args) {
       result.options.target = args[++i];
     } else if (arg === "--source") {
       result.options.source = args[++i];
+    } else if (arg === "--codex-home") {
+      result.options.codexHome = args[++i];
     } else if (arg === "--dry-run") {
       result.options.dryRun = true;
     } else if (arg === "--force") {
@@ -96,6 +105,8 @@ async function run(args) {
   switch (command) {
     case "install":
       return install(options);
+    case "codex-install":
+      return codexInstall(options);
     case "init":
       return init(options);
     case "link":
