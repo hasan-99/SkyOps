@@ -15,7 +15,7 @@
       "category": "code-review",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/hjahouse/CopilotOps.git",
+        "url": "https://github.com/hjahouse/SkyOps.git",
         "path": ".",
         "ref": "dev"
       }

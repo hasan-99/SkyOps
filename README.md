@@ -9,15 +9,15 @@ This plugin is built for Claude Code. Not ported from anywhere, not shared with 
 **Testing it locally (fastest way to try it):**
 
 ```bash
-claude --plugin-dir C:\SharedProjects\CopilotOps\claude-plugin
+claude --plugin-dir C:\SharedProjects\SkyOps
 ```
 
 That's it. Every command below shows up immediately — no marketplace needed for this.
 
-**Installing it for real, once it's pushed to GitHub:**
+**Installing it for real:**
 
 ```
-/plugin marketplace add https://github.com/hjahouse/CopilotOps.git
+/plugin marketplace add https://github.com/hjahouse/SkyOps.git
 /plugin install skyops
 ```
 
@@ -57,5 +57,5 @@ Every other command here is read-only and runs *after* code exists — great for
 
 ## A couple of honest notes
 
-- `standards/` here is a copy of the same content in `templates/.github/standards/` (the original GitHub Copilot version of this library, kept separately and untouched). No auto-sync between them yet — if you update one, update the other by hand for now.
+- This used to be **CopilotOps**, a GitHub Copilot asset library with its own install CLI. That's all gone now — see [ADR 0002](docs/decisions/0002-rename-to-skyops-claude-code-plugin.md) for why and what changed.
 - This plugin only guards 2 of the catalog's 11 SRVs at implementation time so far (the 2 High-severity ones). The rest are still review-time only. More guards can follow the same pattern as `sky-async-guard`/`sky-i18n-guard` if you want fuller coverage.
