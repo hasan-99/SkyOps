@@ -68,7 +68,7 @@ They **ask** rather than hard-block — an intentional op is one confirmation aw
 
 `standards/` holds two things:
 
-- **`SRV-CATALOG.md`** — the team's named list of known code-review issues (SRV-H-001 sync-in-async, SRV-H-006 locale/timezone bugs, and nine more). `sky-review` cites these by number in real PR comments instead of re-explaining the same issue every time.
+- **`SRV-CATALOG.md`** — the team's named list of known code-review issues (16 SRVs: sync-in-async, locale/timezone bugs, NoTracking silent-no-op writes, whole-table loads, and more), mirrored from the ClearSkiesPlatform `StandardReviewViolations` source of truth. `sky-review` reads this catalog and cites SRVs by number in real PR comments instead of re-explaining the same issue every time.
 - **`GROUNDING.md`** — the shared evidence law every review lane follows: cite `file:line` or the finding is dropped, no hedging, `INSUFFICIENT EVIDENCE` blocks an approve, and a deterministic severity→score rubric. Keeps findings honest and consistent across skills.
 
 ## Why the two new guard commands exist

@@ -8,6 +8,22 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.3.0] - Sync SRV catalog with the source of truth
+
+### Added
+
+- Synced the SRV catalog with the authoritative `ClearSkiesPlatform/Backend/docs/StandardReviewViolations` source — added the 5 SRVs SkyOps was missing (catalog now 11 → 16):
+  - **SRV-H-014** (High, Data/Persistence) — mutate-then-`SaveChanges` on an untracked entity under a NoTracking-default context (silent 0-row write).
+  - **SRV-H-016** (High, Data/Persistence) — shared EF entity schema change reaches only some of the databases it's mapped to (runtime "Invalid column name"/"Unknown column").
+  - **SRV-L-015** (Low, Code Clarity) — verbose, redundant comments that restate the code and repeat a narrative.
+  - **SRV-M-012** (Medium, Performance) — whole-table load to find one row by a translatable key.
+  - **SRV-M-013** (Medium, Performance) — server-side grid loads the whole table, then filters/sorts/pages in memory.
+- Added the **Performance** section to `SRV-CATALOG.md` (its first entries) and the Performance category + new candidate SRVs to `review-standards` so classification can reach them.
+
+### Notes
+
+- Coverage check: `sky-review` reads `SRV-CATALOG.md`, so it now covers all 16. Implementation-time guards still exist only for SRV-H-001/L-010 (`sky-async-guard`) and SRV-H-006 (`sky-i18n-guard`); the new High SRVs (H-014, H-016) are review-time only for now — write-time guards can follow the same pattern.
+
 ## [2.2.0] - Deterministic hooks, memory store, and legacy cleanup
 
 ### Added

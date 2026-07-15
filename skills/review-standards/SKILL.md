@@ -63,6 +63,7 @@ Possible categories:
 * Code Clarity
 * SOLID
 * Data/Persistence
+* Performance
 * Security
 * Caching
 * Globalization
@@ -84,6 +85,7 @@ Code Clarity:
 * SRV-L-002
 * SRV-L-008
 * SRV-O-011
+* SRV-L-015
 
 SOLID:
 
@@ -93,6 +95,13 @@ SOLID:
 Data:
 
 * SRV-M-003
+* SRV-H-014
+* SRV-H-016
+
+Performance:
+
+* SRV-M-012
+* SRV-M-013
 
 Caching:
 

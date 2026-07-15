@@ -66,12 +66,15 @@ Every SRV belongs to exactly one category. Pick the one that best describes the 
 | [SRV-L-002](SRV-L-002.md) | Helper re-checks an invariant the caller already enforces | Helper takes parameters whose relationship is already enforced by the caller, then re-applies the same rule defensively inside. Invariant lives in two places; drift fails silently. |
 | [SRV-L-008](SRV-L-008.md) | Copy-paste siblings: near-duplicate members that differ by one operation | Two+ members are identical except for a single operation/constant/type. Fixes drift between copies; extract one parameterized helper and pass the varying piece in. |
 | [SRV-O-011](SRV-O-011.md) | Private methods ordered below public members | A private helper is declared above the type's public API, so the implementation detail reads before the contract. Order members by descending accessibility (public first, private last); enforceable with StyleCop SA1202. |
+| [SRV-L-015](SRV-L-015.md) | Verbose, redundant comments that restate the code and repeat a narrative | Multi-paragraph comments restate what the code says and re-tell the same ticket/design narrative on every field/method/mapper the feature touches — comment debt that rots and drifts from the doc it duplicates. Comment the *why* once, link the authoritative doc/ticket once, let self-documenting names carry the *what*. |
 
 ### Data/Persistence
 
 | Code | Title | Summary |
 | --- | --- | --- |
 | [SRV-M-003](SRV-M-003.md) | Unit-of-Work boundary doesn't match the transaction boundary | A UoW aggregates repositories backed by different DbContexts/databases, so its `SaveChanges` can't be atomic and cross-DB writes are treated as one transaction when they can't be. |
+| [SRV-H-014](SRV-H-014.md) | Mutate-then-`SaveChanges` on an untracked entity under a NoTracking-default context | The context defaults to `QueryTrackingBehavior.NoTracking`, so a fetch → mutate → `SaveChanges` write without marking the entity modified persists 0 rows yet reports success — silent data loss, invisible to mocked/handler tests and HTTP-only e2e. Use `.AsTracking()` on the write-path fetch. |
+| [SRV-H-016](SRV-H-016.md) | Shared EF entity: a schema change reaches only some of the databases it is mapped to | An entity mapped in multiple contexts (each a different DB) gets a column added in only some backing DBs; EF `SELECT`s it everywhere it's mapped, so the un-migrated DB throws "Invalid column name"/"Unknown column" at query time. Migrate every mapped DB (tenant + collector are a pair), or `Ignore()` the property in the context whose DB won't have it. |
 
 ### SOLID
 
@@ -91,6 +94,13 @@ Every SRV belongs to exactly one category. Pick the one that best describes the 
 | Code | Title | Summary |
 | --- | --- | --- |
 | [SRV-M-007](SRV-M-007.md) | Cache write and its TTL set non-atomically | The write and its `EXPIRE` are separate commands, so a crash/cancel/exception between them leaves the key with no TTL — it never expires, and orphaned keys grow the keyspace unbounded. Make write+TTL one atomic command. |
+
+### Performance
+
+| Code | Title | Summary |
+| --- | --- | --- |
+| [SRV-M-012](SRV-M-012.md) | Whole-table load to find one row by a translatable key | A handler needs one row by id/key but the repo only offers get-all, so code does `GetUsers().FirstOrDefault(u => u.Id == id)` — pulling the entire table into memory for an O(1) lookup. Push a by-id/by-key predicate into a `Where(...).FirstOrDefaultAsync` repo method. |
+| [SRV-M-013](SRV-M-013.md) | Server-side grid loads the whole table, then filters/sorts/pages in memory | A paged/infinite-scroll grid materialises the entire table (`ToListAsync()`) then applies scope/filter/search/sort/page with LINQ-to-Objects, so every request pulls all rows regardless of page size. Push the predicates + ORDER BY + page into the `IQueryable` (SQL). |
 
 ### Error handling
 
