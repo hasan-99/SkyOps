@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "skyops-marketplace",
+  "description": "Marketplace for SkyOps, a Claude Code plugin for planning, review, investigation, and implementation-time guard commands on C#/.NET 6 backends.",
+  "owner": {
+    "name": "Hasan Jahouse"
+  },
+  "plugins": [
+    {
+      "name": "skyops",
+      "description": "SkyOps — read-only planning, review, investigation, and implementation-time guard commands for C#/.NET 6 backend work in Claude Code.",
+      "author": {
+        "name": "Hasan Jahouse"
+      },
+      "category": "code-review",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/hjahouse/CopilotOps.git",
+        "path": ".",
+        "ref": "dev"
+      }
+    }
+  ]
+}

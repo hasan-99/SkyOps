@@ -1,12 +1,31 @@
 # Changelog
 
-All notable changes to CopilotOps Framework should be documented here.
+All notable changes to SkyOps (formerly CopilotOps) should be documented here.
 
-CopilotOps follows semantic versioning:
+SkyOps follows semantic versioning:
 
-- `PATCH` version, like `1.0.1`, for fixes, typos, docs, validation fixes, or small safe prompt clarifications.
-- `MINOR` version, like `1.1.0`, for new prompts, new skills, new CLI commands, or backward-compatible improvements.
-- `MAJOR` version, like `2.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
+- `PATCH` version, like `2.0.1`, for fixes, typos, docs, or small safe wording clarifications.
+- `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
+- `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
+
+## [2.0.0] - Rename to SkyOps, become a Claude Code plugin
+
+### Changed
+
+- Renamed the framework from CopilotOps to **SkyOps** and rebuilt it as a real, installable Claude Code plugin (`.claude-plugin/plugin.json` + `commands/` + `skills/` + `standards/` at the repo root), not a loose set of personal files.
+- Fixed real bugs found during the migration: 3 files with malformed frontmatter, 3 files missing required frontmatter fields, and 2 files with a hardcoded personal path — now using `${CLAUDE_PLUGIN_ROOT}`.
+- Full tone pass across every command/skill: same rules, plainer and warmer wording.
+
+### Added
+
+- `sky-async-guard` — implementation-time guard for SRV-H-001 (sync I/O inside async methods) and SRV-L-010 (missing/dropped CancellationToken). Fires while the code is being written, not just at review time.
+- `sky-i18n-guard` — implementation-time guard for SRV-H-006 (culture/timezone-dependent DateTime parsing).
+- `sky-comment-triage` — verifies a reviewer's comment against the code and checks for the same defect elsewhere before proposing a fix.
+
+### Removed
+
+- The entire GitHub Copilot delivery mechanism: `templates/.github/`, the repo's own self-referential `.github/`, and the custom Node CLI (`src/`, `bin/`, install/init/link/health/doctor/validate/rollback/codex-install) that existed solely to manage it. Claude Code installs/loads this plugin itself — no custom installer needed.
+- CLI-specific docs (`ADMIN_SETUP.md`, `COMMAND_CATALOG.md`, `PRIVATE_GITHUB_INSTALL.md`, `PRIVATE_GITHUB_USER_GUIDE.html`, `TEAM_ONBOARDING.md`) — all described the now-removed install workflow.
 
 ## [1.3.0] - Replace Test Skill With Verification Workflow
 

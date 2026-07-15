@@ -1,31 +1,15 @@
 {
-  "name": "copilotops",
-  "version": "1.3.0",
-  "description": "CopilotOps Framework: private GitHub Copilot prompts, skills, instructions, validation, and setup tooling for invited teams.",
-  "type": "commonjs",
-  "bin": {
-    "copilotops": "./bin/copilotops.js"
-  },
+  "name": "skyops",
+  "version": "2.0.0",
+  "description": "SkyOps: a Claude Code plugin for planning, review, investigation, and implementation-time guard commands on C#/.NET 6 backends.",
   "private": true,
-  "scripts": {
-    "start": "node ./bin/copilotops.js",
-    "install:target": "node ./bin/copilotops.js install",
-    "health": "node ./bin/copilotops.js health",
-    "doctor": "node ./bin/copilotops.js doctor",
-    "validate": "node ./bin/copilotops.js validate",
-    "test:local": "node ./bin/copilotops.js --help"
-  },
   "keywords": [
-    "github-copilot",
-    "copilot",
-    "prompts",
+    "claude-code",
+    "claude-code-plugin",
     "skills",
     "developer-tools",
     "ai-engineering"
   ],
-  "author": "",
-  "license": "UNLICENSED",
-  "engines": {
-    "node": ">=18"
-  }
+  "author": "Hasan Jahouse",
+  "license": "UNLICENSED"
 }
