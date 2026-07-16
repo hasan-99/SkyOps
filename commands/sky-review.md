@@ -71,8 +71,6 @@ Evidence: build <ok/fail>, tests <pass>/<fail>/<skip>.
 No findings.
 ```
 
-If one or two acceptance criteria still need live checking, add a single `Verify:` line. Otherwise stop.
-
 ## Case B — findings exist
 
 Lead with the verdict line, then one block per finding. Nothing else.
@@ -92,8 +90,6 @@ Fix: <one line, or a short snippet only if a sentence will not do>
 ```
 
 Severity dot: 🔴 Critical or High, 🟡 Medium, 🟢 Low or Optional. Only real, proven findings. Drop anything without `file:line` proof. Mark out of scope findings with `(out of scope)` after the title.
-
-Add a single `Verify:` line at the end only if an acceptance criterion needs live or deploy checking.
 
 ---
 
