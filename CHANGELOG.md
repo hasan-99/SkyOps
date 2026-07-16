@@ -8,6 +8,18 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.5.0] - Sky Review lanes are agents, mandatory SRV sweep, leaner report
+
+### Added
+
+- New `sky-srv-standards` agent: a dedicated SRV compliance lane that sweeps the diff against the entire SRV catalogue one code at a time, so no standard is missed. `sky-review` always dispatches it.
+- New per lane review agents in `agents/`: `sky-review-api`, `sky-review-service`, `sky-review-data`, `sky-review-security`, `sky-review-performance`. Each is small, focused, and reusable on its own.
+
+### Changed
+
+- `sky-review` is now a thin orchestrator (301 lines down to 126). The per lane depth moved into the agents. It gathers context, dispatches the lane agents in parallel, aggregates and validates, and outputs a short report plus the paste ready Jira comment.
+- The report format is trimmed to a verdict, a one line risk, a one line evidence, and findings as four short lines each (severity, file and line, fix, scope). No long narrative sections.
+
 ## [2.4.0] - Sky Review runs real parallel lanes with evidence and a paste ready Jira comment
 
 ### Changed
