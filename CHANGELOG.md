@@ -8,6 +8,18 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.4.0] - Sky Review runs real parallel lanes with evidence and a paste ready Jira comment
+
+### Changed
+
+- `sky-review` now dispatches each selected review lane as a real parallel subagent (one Agent call per lane, sent together) instead of running the lanes sequentially. Findings are aggregated and de-duplicated by file and line.
+- Added a mandatory evidence step: the review builds the affected project(s) and runs the affected tests, and records the pass, fail, and skip counts. A review without a build and test result is now incomplete.
+- Each lane subagent receives the full SRV catalogue and must classify every finding against an SRV code or mark it not catalogued, keeping SRV standards checking central to the review.
+
+### Added
+
+- `sky-review` now ends every report with a paste ready Jira comment block, one entry per finding, using a severity dot (🔴 🟡 🟢), File, SRV, a problem snippet, a short why, and a Fix snippet. The block follows the no dash writing style.
+
 ## [2.3.0] - Sync SRV catalog with the source of truth
 
 ### Added

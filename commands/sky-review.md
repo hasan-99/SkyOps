@@ -61,6 +61,8 @@ Review within repository standards.
 
 Never review everything at once. Break the work into lanes and run only the ones that are relevant.
 
+This is real parallelism, not sequential lanes pretending to be parallel. Spawn one subagent per selected lane by sending all the Agent tool calls in a SINGLE message so they run concurrently. Use the general-purpose agent type. Then aggregate and de-duplicate their findings.
+
 Possible lanes:
 
 * API
@@ -69,12 +71,16 @@ Possible lanes:
 * Security
 * Performance
 
-Each lane receives only:
+Each lane subagent receives only:
 
 * task summary
 * Jira summary
+* acceptance criteria
 * changed files
 * relevant diff
+* the full text of the SRV catalogue so it can classify against standards
+
+Each lane returns structured findings: severity, category, an SRV code or "not catalogued", file and line, a problem snippet with inline arrows, a short why, a fix snippet, evidence, and confidence.
 
 Never send unrelated files. Never load the entire repository.
 
@@ -112,13 +118,15 @@ Review only the touched files.
 
 ---
 
-**Phase 3 — Select lanes.**
+**Phase 3 — Select lanes and build evidence.**
 
-Run only the relevant lanes.
+Run only the relevant lanes. Build the affected project(s) and run the affected tests. Record pass, fail, and skip counts and any error output. A review without a build and test result is incomplete.
 
 ---
 
-**Phase 4 — Collect findings.**
+**Phase 4 — Dispatch lanes in parallel and collect findings.**
+
+Spawn one subagent per selected lane, all in a single message, so they run concurrently (general-purpose agent type). Give each the context listed in Parallel Review Strategy, including the SRV catalogue. Aggregate the returned findings and de-duplicate by file and line, keeping the highest severity on conflict.
 
 ---
 
@@ -278,6 +286,41 @@ Request Changes
 Block
 
 Provide concise justification.
+
+---
+
+# Jira Comment (paste ready)
+
+After the report, always output a fenced block the user can paste straight into the Jira ticket.
+
+Rules:
+
+* Line one: the ticket key and short title.
+* Line two: the verdict in bold plus one sentence. If nothing blocks, say so plainly.
+* One entry per finding, most severe first. Do not invent findings. If the code is clean, keep it short and say it is clean.
+* No dash punctuation in prose. Use colons and short sentences. Ticket keys, SRV codes, branch names, and code stay as is.
+
+Severity dot: 🔴 Critical or High, 🟡 Medium, 🟢 Low or Optional.
+
+Per finding layout:
+
+```
+🔴 <SRV code or short category>: <short title>
+File: <repo relative path> (line N)
+SRV: <SRV code and title, or "not catalogued">
+
+<problem code block, inline // <- arrows on the offending lines>
+
+<one or two plain sentences: why it is wrong and the risk>
+
+Fix:
+
+<corrected code block>
+
+<optional one line note>
+```
+
+Close with a release gate line for any acceptance criterion that needs manual or live verification.
 
 ---
 

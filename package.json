@@ -1,6 +1,6 @@
 {
   "name": "skyops",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "SkyOps: a Claude Code plugin for planning, review, investigation, and implementation-time guard commands on C#/.NET 6 backends.",
   "private": true,
   "keywords": [
