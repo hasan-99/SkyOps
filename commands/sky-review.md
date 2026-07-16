@@ -34,7 +34,7 @@ Give every agent: the requirement summary, the acceptance criteria, the changed 
 
 Phases 1–3 are the fixed cost. Phases 5–6 are conditional: they run only when findings survive. Spend nothing judging or routing zero findings.
 
-1. **Context.** Read the Jira ticket (summary, description, acceptance criteria, parent). Find the branch and repo. If `.skyops/knowledge/` exists, run `/sky-recall` first. Fetch, checkout, pull. Find the ticket tagged commits with `git log --grep=<KEY>` and review only those, do not diff against master. Build the scope with `git show <commit> --stat` and the per file diff.
+1. **Context (resolve branch + repos FIRST).** Read the Jira ticket (summary, description, acceptance criteria, parent). Before any check, resolve the branch and every involved repo from the ticket comments first (look for a "Branches for review" comment), then from args — a ticket usually names more than one repo (e.g. CS_Datafactory_v2 and ModelUtil_Core); resolve and review all of them. The comment may omit the branch prefix: if `origin/<name>` is missing, `git branch -a | grep -i <KEY>` and use the real name (often `MN/<KEY>`); if the branch was deleted after merge, fall back to the tagged commits. If `.skyops/knowledge/` exists, run `/sky-recall` first. Fetch, checkout, pull. Find the ticket tagged commits with `git log --grep=<KEY>` and review only those, do not diff against master. Build the scope with `git show <commit> --stat` and the per file diff.
 2. **Evidence.** Build the affected project(s). Run only the affected tests. Record pass, fail, and skip counts and any error output. A review without a build and test result is incomplete. (Trivial diff exception below may skip this.)
 3. **Dispatch lanes in parallel.** One message, all lane agents at once: the SRV lane plus ONLY the domain lanes the diff actually touches. Do not dispatch a domain lane for a surface the diff does not change.
 4. **Aggregate + gate.** Merge duplicate findings by file and line, keep the highest severity on conflict. Confirm each SRV code with `review-standards`, or mark it "not catalogued" with a category. Validate with `sky-evidence`: no `file:line` proof means drop it. **Gate: if zero findings survive and build/tests passed, skip phases 5 and 6 entirely and emit the Case A clean output. Do not run the judge on an empty finding set.**
@@ -61,23 +61,26 @@ Always available: `review-standards` and `sky-evidence` (validate findings). Con
 
 Length must match findings. No findings, a few lines. Findings, one short block each. Never pad. No narrative sections.
 
+NEVER include a "verified live on Dev", "manual verification", "outside review", or release-gate line or row anywhere in the report or the Jira comment. If an acceptance criterion is a manual or live check, drop it silently. Report only what is verified from code, build, and tests.
+
+Lead format (both cases): line one is `<KEY> — <verdict>` (plain word: Approved, Approved With Comments, Changes Requested, Blocked — no "Sky Review:" prefix, no title). Line two is one plain sentence: what was implemented, build result, and tests. Do not list every sub-change, the test class name, or a Branches line in the lead.
+
 ## Case A — clean (no findings)
 
-Output ONLY this, then stop. Do not print a Findings section. Do not print a Jira comment block.
+Output ONLY this, then stop. Do not print a Findings section.
 
 ```
-✅ Sky Review: <KEY> — Approve
-Evidence: build <ok/fail>, tests <pass>/<fail>/<skip>.
-No findings.
+CLS-13812 — Approved
+IOC flag and Hosts AssetIP are implemented correctly. Build passed, and all 5 tests are green.
 ```
 
 ## Case B — findings exist
 
-Lead with the verdict line, then one block per finding. Nothing else.
+Lead (same two lines), a blank line, then one block per finding. Nothing else.
 
 ```
-<verdict>: <KEY> — <one sentence why>
-Evidence: build <ok/fail>, tests <pass>/<fail>/<skip>.
+<KEY> — <verdict>
+<one plain sentence: what was implemented, build result, tests>
 ```
 
 Then, most severe first, one block per finding — file, reason, fix, nothing more:
