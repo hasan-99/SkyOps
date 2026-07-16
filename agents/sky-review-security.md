@@ -20,4 +20,4 @@ Requirement summary, acceptance criteria, the changed files with diff, the stand
 
 ## Output
 
-Findings, most severe first. For each: severity (Critical, High, Medium, Low, Optional), category, srv (code or "not catalogued"), file and line, a short problem snippet, a one or two sentence why, a short fix snippet, evidence (`file:line`), confidence. If the lane is clean, return CLEAN and list what you checked, especially confirming the new path inherits the same auth as its siblings. Note any deploy or data step (for example seeding a permission path) as an operational note, not a code defect.
+Findings, most severe first. For each: severity (Critical, High, Medium, Low, Optional), category, srv (code or "not catalogued"), file and line, a short problem snippet, a one or two sentence why, a short fix snippet, evidence (`file:line`), confidence. If the lane is clean, return only `CLEAN` — do not list what you checked (still add a one line auth note only if the new path does NOT clearly inherit the same auth as its siblings). Note any deploy or data step (for example seeding a permission path) as an operational note, not a code defect.

@@ -20,4 +20,4 @@ Requirement summary, acceptance criteria, the changed files with diff, the stand
 
 ## Output
 
-Findings, most severe first. For each: severity (Critical, High, Medium, Low, Optional), category, srv (code or "not catalogued"), file and line, a short problem snippet, a one or two sentence why, a short fix snippet, evidence (`file:line`), confidence. Mark any finding in a shared base or a prior commit as OUT OF SCOPE. If the lane is clean, return CLEAN and list what you checked.
+Findings, most severe first. For each: severity (Critical, High, Medium, Low, Optional), category, srv (code or "not catalogued"), file and line, a short problem snippet, a one or two sentence why, a short fix snippet, evidence (`file:line`), confidence. Mark any finding in a shared base or a prior commit as OUT OF SCOPE. If the lane is clean, return only `CLEAN` — do not list what you checked.

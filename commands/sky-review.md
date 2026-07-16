@@ -32,18 +32,22 @@ Give every agent: the requirement summary, the acceptance criteria, the changed 
 
 # Flow
 
+Phases 1–3 are the fixed cost. Phases 5–6 are conditional: they run only when findings survive. Spend nothing judging or routing zero findings.
+
 1. **Context.** Read the Jira ticket (summary, description, acceptance criteria, parent). Find the branch and repo. If `.skyops/knowledge/` exists, run `/sky-recall` first. Fetch, checkout, pull. Find the ticket tagged commits with `git log --grep=<KEY>` and review only those, do not diff against master. Build the scope with `git show <commit> --stat` and the per file diff.
-2. **Evidence (mandatory).** Build the affected project(s). Run the affected tests. Record pass, fail, and skip counts and any error output. A review without a build and test result is incomplete.
-3. **Dispatch lanes in parallel.** One message, all lane agents at once (the SRV lane plus the relevant domain lanes).
-4. **Aggregate.** Merge duplicate findings by file and line, keep the highest severity on conflict. Confirm each SRV code with `review-standards`, or mark it "not catalogued" with a category. Validate with `sky-evidence`: no `file:line` proof means drop it.
-5. **Judge.** Risk with `sky-risk` (User, Data, Security, Performance, Operational). Verification with `sky-verification`. Decision with `sky-decision`.
-6. **Route.** Point each required change at the command that fixes it: a single reviewer comment to `/sky-comment-triage`, a bug to `/sky-debug` or `/sky-investigate`, a multi step change to `/sky-task` or `/sky-fast`. Route only what the findings justify.
+2. **Evidence.** Build the affected project(s). Run only the affected tests. Record pass, fail, and skip counts and any error output. A review without a build and test result is incomplete. (Trivial diff exception below may skip this.)
+3. **Dispatch lanes in parallel.** One message, all lane agents at once: the SRV lane plus ONLY the domain lanes the diff actually touches. Do not dispatch a domain lane for a surface the diff does not change.
+4. **Aggregate + gate.** Merge duplicate findings by file and line, keep the highest severity on conflict. Confirm each SRV code with `review-standards`, or mark it "not catalogued" with a category. Validate with `sky-evidence`: no `file:line` proof means drop it. **Gate: if zero findings survive and build/tests passed, skip phases 5 and 6 entirely and emit the Case A clean output. Do not run the judge on an empty finding set.**
+5. **Judge (only if findings exist).** Risk with `sky-risk` (User, Data, Security, Performance, Operational). Verification with `sky-verification`. Decision with `sky-decision`. Skip any of these that a finding set does not warrant — a single low finding does not need the full judge trio.
+6. **Route (only if findings exist).** Point each required change at the command that fixes it: a single reviewer comment to `/sky-comment-triage`, a bug to `/sky-debug` or `/sky-investigate`, a multi step change to `/sky-task` or `/sky-fast`. Route only what the findings justify.
+
+**Trivial diff fast path.** If `git show <commit> --stat` shows the change is only comments, docs, formatting, string or config constants, or a rename with no logic change, skip the parallel lanes and the judge. Do a single quick read, run build only if a compiled file changed, and emit Case A. State in one line why it was fast pathed.
 
 ---
 
 # Required Skills
 
-`review-standards`, `sky-risk`, `sky-evidence`, `sky-verification`, `sky-decision`. The lane agents own the per lane depth (api, service, data, security, performance) and `sky-srv-standards` owns the catalogue sweep.
+Always available: `review-standards` and `sky-evidence` (validate findings). Conditional — used only when findings exist: `sky-risk`, `sky-verification`, `sky-decision`. The lane agents own the per lane depth (api, service, data, security, performance) and `sky-srv-standards` owns the catalogue sweep.
 
 ---
 
@@ -55,65 +59,63 @@ Give every agent: the requirement summary, the acceptance criteria, the changed 
 
 # Output Format
 
-Keep it short and high signal. Lead with the verdict, then the findings with their fix, then the paste ready Jira comment. Do not pad. No long narrative sections.
+Length must match findings. No findings, a few lines. Findings, one short block each. Never pad. No narrative sections.
 
-# Sky Review Report
+## Case A — clean (no findings)
 
-**Verdict:** Approve, Approve With Comments, Request Changes, or Block. One sentence why.
+Output ONLY this, then stop. Do not print a Findings section. Do not print a Jira comment block.
 
-**Risk:** one line, the highest risks only.
+```
+✅ Sky Review: <KEY> — Approve
+Evidence: build <ok/fail>, tests <pass>/<fail>/<skip>.
+No findings.
+```
 
-**Evidence:** build result and test counts in one line.
+If one or two acceptance criteria still need live checking, add a single `Verify:` line. Otherwise stop.
 
-## Findings
+## Case B — findings exist
 
-Most severe first. Only real, proven issues. Keep each finding to four short lines:
+Lead with the verdict line, then one block per finding. Nothing else.
 
-* <severity dot 🔴 🟡 🟢> <SRV code or not catalogued>: one line title
-* File: path (line N)
-* Fix: short snippet or one sentence
-* Scope: in scope, or out of scope (base or prior commit)
+```
+<verdict>: <KEY> — <one sentence why>
+Evidence: build <ok/fail>, tests <pass>/<fail>/<skip>.
+```
 
-If there are no blocking findings, say "No blocking findings" and stop.
+Then, most severe first, one block per finding — file, reason, fix, nothing more:
 
-## Verify before release
+```
+🔴 <SRV code or not catalogued> — <short title>
+File: <repo relative path> (line N)
+Reason: <one or two plain sentences: what is wrong and the risk>
+Fix: <one line, or a short snippet only if a sentence will not do>
+```
 
-One or two bullets only: what to check live, and any deploy or data step. Skip if nothing applies.
+Severity dot: 🔴 Critical or High, 🟡 Medium, 🟢 Low or Optional. Only real, proven findings. Drop anything without `file:line` proof. Mark out of scope findings with `(out of scope)` after the title.
+
+Add a single `Verify:` line at the end only if an acceptance criterion needs live or deploy checking.
 
 ---
 
 # Jira Comment (paste ready)
 
-After the report, always output a fenced block the user can paste straight into the Jira ticket.
+Output the paste block ONLY in Case B (findings exist). When clean, skip it entirely — the Case A lines are enough.
 
 Rules:
 
 * Line one: the ticket key and short title.
-* Line two: the verdict in bold plus one sentence. If nothing blocks, say so plainly.
-* One entry per finding, most severe first. Do not invent findings. If the code is clean, keep it short and say it is clean.
+* Line two: the verdict in bold plus one sentence.
+* One entry per finding, most severe first. Do not invent findings.
 * No dash punctuation in prose. Use colons and short sentences. Ticket keys, SRV codes, branch names, and code stay as is.
 
-Severity dot: 🔴 Critical or High, 🟡 Medium, 🟢 Low or Optional.
-
-Per finding layout:
+Per finding layout — keep it to file, reason, fix. Include a code block only when a sentence cannot carry the fix:
 
 ```
 🔴 <SRV code or short category>: <short title>
 File: <repo relative path> (line N)
-SRV: <SRV code and title, or "not catalogued">
-
-<problem code block, inline // <- arrows on the offending lines>
-
-<one or two plain sentences: why it is wrong and the risk>
-
-Fix:
-
-<corrected code block>
-
-<optional one line note>
+Reason: <one or two plain sentences: why it is wrong and the risk>
+Fix: <one line, or a short corrected snippet only if needed>
 ```
-
-Close with a release gate line for any acceptance criterion that needs manual or live verification.
 
 ---
 
