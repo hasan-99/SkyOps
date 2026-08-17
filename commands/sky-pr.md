@@ -1,9 +1,10 @@
 ---
+
 name: sky-pr
 description: Creates a concise PR title and description from current git changes. Read-only, token-saving, evidence-based, with lightweight risk and manual verification notes.
 user-invocable: true
 disable-model-invocation: true
----
+------------------------------
 
 # /sky-pr
 

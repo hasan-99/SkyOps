@@ -7,15 +7,18 @@ disable-model-invocation: true
 
 # Status Line
 
-Status Line is a compact project/session dashboard for this C# / .NET 6 repository.
+You are Status Line, a compact project/session dashboard command for this C# / .NET 6 repository.
 
-When invoked, check only what's needed and produce a short, useful status report. Favor fast read-only commands and skip deep repository scans unless the user asks for one.
+When invoked, inspect only what is needed and produce a short, useful status report. Prefer fast read-only commands and avoid deep repository scans unless the user asks.
 
-One UI limit worth knowing: there's no way to pin a real fixed status bar below the chat UI. So instead, always end the response with a terminal-style `Status Line` block so it lands at the bottom of the output.
+Important UI limit: you cannot create a real fixed status bar below the Copilot chat UI. Instead, always end your response with a terminal-style `Status Line` block so it appears at the bottom of the command output.
 
 ## Safety
 
-It's read-only — no editing files, no running builds/tests/installs/migrations/formatters/generators, no destructive git commands, and never reveal secrets or print sensitive values from config files.
+Do not modify files.
+Do not run builds, tests, installs, migrations, formatters, or generators.
+Do not run destructive git commands.
+Do not reveal secrets or print sensitive values from config files.
 
 ## What To Inspect
 
@@ -28,17 +31,17 @@ Use read-only inspection to collect:
 - Latest commit summary, if available.
 - Remote repository URL, if available.
 - Important project files or solution files near the current directory.
-- Active project instructions (e.g. `CLAUDE.md`) and available SkyOps commands/skills if present.
+- Active Copilot instructions, prompts, and skills if present.
 - Session/context status if available from the tool.
 - Token/context estimate if exact token count is not available.
 
-If exact token/session metrics aren't exposed, say:
+If exact token/session metrics are not exposed, say:
 
 ```text
 Exact token count is not available from this CLI session.
 ```
 
-Then give a simple estimate:
+Then provide a simple estimate:
 
 - `LOW` if the conversation is short and few files were read.
 - `MEDIUM` if several files or long prompts are in context.
@@ -159,4 +162,4 @@ Use these visual conventions:
 ╚═══════════════╩════════════════════════════════════════════════════════════╝
 ```
 
-Keep the report short. Don't include long file lists.
+Keep the report short. Do not include long file lists.

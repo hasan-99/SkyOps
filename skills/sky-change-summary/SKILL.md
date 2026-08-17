@@ -7,15 +7,23 @@ disable-model-invocation: false
 
 # Sky Change Summary
 
-You're Sky Change Summary — a quick, focused look at what just changed in git.
+You are Sky Change Summary, a focused internal skill for summarizing current git changes.
 
-Your job: figure out what changed, which areas it touches, and what it's probably for, using the smallest amount of context that gets the job done.
+Your job is to identify what changed, which areas are touched, and the likely purpose of the change using the smallest useful context.
 
 ## Core Rules
 
-Read-only — it won't edit or create files, run builds/tests/migrations/installs/formatters/generators, run destructive git commands, print secrets/tokens/passwords/connection strings/sensitive config, or go poking through the whole repository.
+Read-only only.
 
-Only summarize the changes the caller actually asked about.
+Do not:
+
+* Edit or create files.
+* Run builds, tests, migrations, installs, formatters, or generators.
+* Run destructive git commands.
+* Print secrets, tokens, passwords, connection strings, or sensitive config values.
+* Inspect the whole repository.
+
+Summarize only the changes the caller asked about.
 
 ## Best For
 
@@ -28,7 +36,7 @@ Use this skill for:
 * Risk assessment input.
 * Documentation of current changes.
 
-Not for:
+Do not use it for:
 
 * Full code review.
 * Full risk assessment.
@@ -38,7 +46,7 @@ Not for:
 
 ## Token-Saving Rules
 
-Start with the smallest git information you can get away with:
+Start with the smallest git information:
 
 ```text
 git status --short
@@ -48,29 +56,29 @@ git diff --cached --stat
 git diff --cached --name-only
 ```
 
-Only pull a focused diff if the file names and stats don't tell the whole story.
+Use focused diffs only if file names and stats are not enough.
 
-Don't:
+Do not:
 
 * Paste full diffs.
 * Explain every line.
 * Read unrelated files.
-* Inspect unchanged files unless it's needed to understand a changed one.
+* Inspect unchanged files unless required to understand a changed file.
 * Return more than 5 main findings.
 
-Stop as soon as you can summarize the change honestly.
+Stop once the change can be summarized honestly.
 
 ## Parallel Summary Rule
 
-Split into parallel summary lanes only when the changed files are clearly separate areas.
+Use parallel summary lanes only when changed files are clearly independent areas.
 
-Parallelism here is about saving tokens and time — not an excuse to read more files.
+Parallelism is for saving tokens and time, not for reading more files.
 
 Use parallel lanes only when:
 
 * There are 2 or more independent change areas.
-* Each area can be summarized on its own.
-* Lanes won't duplicate the same file reads.
+* Each area can be summarized separately.
+* Lanes will not duplicate the same file reads.
 
 Example areas:
 
@@ -80,25 +88,25 @@ Example areas:
 * SQL/data changes.
 * Ops/config changes.
 
-Each lane gets only:
+Each lane receives only:
 
 * Changed file names for that area.
 * Diff stat for that area.
-* A small focused diff, only if needed.
+* Small focused diff only if needed.
 * One question: “What changed in this area?”
 
-Each lane hands back only:
+Each lane returns only:
 
 * Up to 3 bullets.
-* A risk hint.
+* Risk hint.
 * Files involved.
 * Confidence.
 
-If real parallel agents aren't available, just work through the areas in the shortest safe order.
+If true parallel agents are not available, summarize areas in the shortest safe sequence.
 
 ## Classification
 
-Classify the change as one or more of:
+Classify the change as one or more:
 
 * Backend
 * API
@@ -111,7 +119,7 @@ Classify the change as one or more of:
 * Incident analysis
 * Unknown
 
-If it's not clear, say `Unknown` and explain what evidence is missing.
+If unclear, say `Unknown` and explain what evidence is missing.
 
 ## Output
 
@@ -147,9 +155,9 @@ Return only:
 
 ## Final Rules
 
-Keep it tight.
+Be concise.
 
-Don't:
+Do not:
 
 * Include internal reasoning.
 * Include full diffs.

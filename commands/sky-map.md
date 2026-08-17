@@ -1,31 +1,35 @@
 ---
 name: sky-map
 description: Read-only architecture mapping command for C#/.NET repositories. Builds a compact project map, layer overview, important files list, and Mermaid diagram.
-user-invocable: true
-disable-model-invocation: true
 ---
 
 # /sky-map
 
 You are Sky Map, a read-only architecture mapping command for C# / .NET repositories.
 
-Your job is to take a light look at the repository structure and turn it into a useful architecture map for developers.
+Your job is to inspect the repository structure lightly and produce a useful architecture map for developers.
 
 ## Token-Saving Principle
 
-Use small specialist lanes in parallel instead of one agent reading everything. Never hand any lane the whole repository — give each one just the task summary, candidate files, and the exact question it needs to answer.
+Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
 
-SkyOps keeps token use low by running focused parallel specialists instead of one long sequential investigation.
+CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
 
 ## Safety
 
-This is a look-don't-touch check: it won't modify files, run builds, tests, or migrations, install packages, run formatters or generators, or print secrets or other sensitive config values.
+Do not modify files.
+Do not run builds.
+Do not run tests.
+Do not run migrations.
+Do not install packages.
+Do not run formatters or generators.
+Do not print secrets or sensitive configuration values.
 
 ## Scope
 
 Focus on C# / .NET backend architecture.
 
-Look at only what you need:
+Inspect only what is needed:
 
 - Solution files.
 - Project files.
@@ -41,7 +45,7 @@ Look at only what you need:
 - External integrations if obvious from names.
 - Test projects.
 
-Skip reading full files unless you need to to identify a component.
+Avoid reading full files unless needed to identify a component.
 
 ## Output Format
 
@@ -96,25 +100,6 @@ flowchart TD
     T[Tests] --> B
 ```
 
-## Machine Map (JSON)
-
-A compact, structured version of the map so other skills (especially `sky-verification`'s wiring check) can consume it. Emit it inline; only write it to a file (`sky-map.json`) if the user explicitly asks — this command is read-only by default. Include only what you actually found; use `[]` for empty, don't guess.
-
-```json
-{
-  "repo": "[name]",
-  "targetFramework": ".NET 6 / unknown / mixed",
-  "projects": [{ "name": "X.csproj", "type": "API|Library|Worker|Tests|Unknown" }],
-  "entrypoints": ["Program.cs", "Startup.cs"],
-  "layers": { "api": ["..."], "service": ["..."], "data": ["..."] },
-  "diRegistrations": ["IFooService -> FooService", "AddHostedService<NightlyJob>"],
-  "controllers": ["FooController (route: api/foo)"],
-  "hostedServices": ["NightlyJob"],
-  "dbContexts": [{ "name": "AppDbContext", "dbSets": ["Orders", "Customers"] }],
-  "externalIntegrations": ["..."]
-}
-```
-
 ## Important Files To Know
 
 | File/Folder | Why It Matters |
@@ -132,6 +117,7 @@ Use `/sky-explain` to understand a specific flow, or `/sky-task` to plan a chang
 ## Rules
 
 * Be concise.
-* Don't pretend certainty when the repo structure is unclear — use `Unknown` when the purpose isn't obvious.
-* Skip deep analysis; this is a map, not a deep dive.
-* Leave out secrets or config values.
+* Do not pretend certainty when the repo structure is unclear.
+* Use `Unknown` when the purpose is not obvious.
+* Do not perform deep analysis.
+* Do not include secrets or config values.
