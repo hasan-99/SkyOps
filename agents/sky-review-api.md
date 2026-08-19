@@ -2,6 +2,7 @@
 name: sky-review-api
 description: API review lane for sky-review. Checks routing, HTTP verbs, route templates, status codes, request and response contracts, ProducesResponseType attributes, and controller thinness (SRV-L-004). Read only. Dispatched in parallel by sky-review.
 tools: Read, Grep, Glob, Bash
+model: haiku
 ---
 
 # API Review Lane

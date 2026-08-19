@@ -2,6 +2,7 @@
 name: sky-review-service
 description: Service review lane for sky-review. Checks handler and query correctness, SOLID, async and cancellation token flow (SRV-H-001, SRV-L-010), naming, code clarity, dead code, and parity of constants and category strings with sibling handlers. Read only. Dispatched in parallel by sky-review.
 tools: Read, Grep, Glob, Bash
+model: sonnet
 ---
 
 # Service Review Lane

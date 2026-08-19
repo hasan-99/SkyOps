@@ -2,6 +2,7 @@
 name: sky-review-data
 description: Data review lane for sky-review. Checks repository and query correctness, de-duplication and key normalization, unit of work and DbContext boundaries (SRV-M-003), and culture or timezone sensitive parsing and formatting in persistence paths (SRV-H-006). Confirms the acceptance criteria behaviors. Read only. Dispatched in parallel by sky-review.
 tools: Read, Grep, Glob, Bash
+model: sonnet
 ---
 
 # Data Review Lane
