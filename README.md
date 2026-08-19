@@ -36,8 +36,9 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 | `sky-comment-triage` | Someone left you a review comment — checks if they're actually right before you touch anything |
 | `sky-pr` | Writes your PR title + description from the current diff |
 | `sky-docs` | Turns a feature/flow into a Confluence-ready doc |
-| `sky-explain` | Explains a piece of code like you're new to it — plain English, no jargon |
+| `sky-explain` | Turns a dense (often AI-written) Jira ticket into a simple, visual HTML brief — what's going on, what they want, and what your code flow does, grounded in the real repo |
 | `sky-map` | Draws the architecture map of a repo you just opened |
+| **`sky-test`** | **New.** Change-driven unit-test loop for CS_Datafactory_v2 — maps the diff to its tests, writes/updates them in the repo's xUnit + NSubstitute style, runs the affected ones, and commits |
 | `sky-doctor` / `sky-health` | Quick "is this repo/setup okay" checks |
 | `status-line` | A terminal-style status readout: branch, git state, next action |
 | **`sky-async-guard`** | **New.** Catches sync-I/O-inside-async bugs the moment you write them — not in review |
