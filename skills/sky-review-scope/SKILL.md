@@ -1,6 +1,6 @@
 ---
 name: sky-review-scope
-description: Builds the exact Jira-ticket code scope from tagged commits, changed files, changed methods, tests, and minimal dependency context.
+description: Internal lane of /sky-review. Builds the exact changed-file and changed-method scope for a ticket. Do not invoke on its own.
 user-invocable: false
 ---
 

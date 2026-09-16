@@ -1,3 +1,7 @@
 # Generated per-ticket artifacts (not framework source)
 briefs/
 plans/
+
+# Machine-local secrets must never enter this repo (see memory/rules/07-secrets.md)
+*.local.md
+skyops-secrets*

@@ -1,6 +1,6 @@
 ---
 name: sky-verification
-description: Focused manual verification skill for C#/.NET 6 backend changes, SQL/data checks, incidents, and production-safe validation.
+description: Plan read-only verification of a backend change: SQL checks, API checks, acceptance criteria.
 user-invocable: false
 disable-model-invocation: false
 ---

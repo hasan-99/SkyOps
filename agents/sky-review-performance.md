@@ -2,7 +2,7 @@
 name: sky-review-performance
 description: Performance review lane for sky-review. Checks N+1 and per item DB calls, hot path inefficiency, unnecessary allocations, redundant work, and caching issues (SRV-M-007). Only reports a real, provable cost. Read only. Dispatched in parallel by sky-review.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: haiku
 ---
 
 # Performance Review Lane

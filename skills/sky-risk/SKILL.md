@@ -1,6 +1,6 @@
 ---
 name: sky-risk
-description: Internal risk assessment skill for C#/.NET 6 backend, SQL, data, incident, production, and PR work. Identifies what can break, risk level, mitigation, rollback, and safe next checks.
+description: Before a backend, SQL or production change: what can break, risk level, mitigation, rollback.
 user-invocable: false
 disable-model-invocation: false
 ---

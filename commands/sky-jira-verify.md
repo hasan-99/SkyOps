@@ -1,6 +1,6 @@
 ---
 name: sky-jira-verify
-description: Jira requirement coverage verifier. Fetches the ticket context and valid comments, resolves the branch, then dispatches parallel subagents to check the branch changes against every Jira requirement and reports Match, Mismatch, Remaining, and Suggestions.
+description: Check the branch changes against every Jira requirement and report Match, Mismatch, Remaining, Suggestions.
 user-invocable: true
 disable-model-invocation: false
 ---

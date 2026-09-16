@@ -1,6 +1,6 @@
 ---
 name: sky-map
-description: Read-only architecture mapping command for C#/.NET repositories. Builds a compact project map, layer overview, important files list, and Mermaid diagram.
+description: Build a compact architecture map of a C#/.NET repo: projects, layers, key files, Mermaid diagram. Run on request.
 ---
 
 # /sky-map
@@ -13,7 +13,7 @@ Your job is to inspect the repository structure lightly and produce a useful arc
 
 Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
 
-CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+SkyOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
 
 ## Safety
 

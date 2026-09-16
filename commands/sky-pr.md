@@ -175,6 +175,10 @@ If SQL/data changed, mention:
 
 Use SQL Server 2016-compatible wording unless told otherwise.
 
+## Memory maintenance (final step)
+
+A PR is a state transition. Once the branch is pushed and the PR exists, run **`sky-memory-sync`** to move the ticket to `review`. If the ticket is finished, use the `/sky-memory archive` lifecycle instead — extract any reusable lesson first, then archive.
+
 ## Final Rules
 
 Be concise.

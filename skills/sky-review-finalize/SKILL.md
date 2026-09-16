@@ -1,6 +1,6 @@
 ---
 name: sky-review-finalize
-description: Applies deterministic review decisions and formats the final Sky Review report and paste-ready Jira comment.
+description: Internal lane of /sky-review. Formats the final report and the paste-ready Jira comment. Do not invoke on its own.
 user-invocable: false
 ---
 

@@ -2,7 +2,7 @@
 name: sky-review-security
 description: Security review lane for sky-review. Checks authorization and authentication on the new path, injection risk, secret handling, unsafe deserialization, and cross tenant reachability. Read only. Dispatched in parallel by sky-review.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 ---
 
 # Security Review Lane

@@ -1,0 +1,101 @@
+# SkyOps memory migration — initial classification, 2026-09-15
+#
+# One-time map that files the pre-SkyOps flat memory store into the categories
+# defined in memory/SCHEMA.md. Applied with:
+#
+#   pwsh ~/.claude/bin/skyops-memory.ps1 migrate -Map <this file>
+#
+# Columns (whitespace separated, '-' = leave unset):
+#   name  category  status  ticket  ticket_state
+#
+# Re-running is safe: the map is declarative, so applying it twice produces the
+# same frontmatter. Entries already archived are reported as "not found".
+
+# ---------------------------------------------------------------------------
+# rules — superseded. The content of these now lives in SkyOps memory/rules/
+# and is generated into the always-loaded CLAUDE.md. They are archived rather
+# than deleted so the original wording and "Why" stay retrievable.
+# ---------------------------------------------------------------------------
+ask-before-push-and-post                   rules  archived  -  -
+no-claude-coauthor-trailer                 rules  archived  -  -
+branch-per-jira-default                    rules  archived  -  -
+checkout-branch-for-review                 rules  archived  -  -
+read-all-jira-linked-references            rules  archived  -  -
+jira-comment-style                         rules  archived  -  -
+jira-no-merge-build-blockers               rules  archived  -  -
+sky-review-format                          rules  archived  -  -
+sky-review-no-live-verify                  rules  archived  -  -
+code-comment-style                         rules  archived  -  -
+db-read-only-and-sql-file-policy           rules  archived  -  -
+prefer-parallel-agents                     rules  archived  -  -
+generate-reports-not-read-bodies           rules  archived  -  -
+bash-exit-code-through-pipe                rules  archived  -  -
+finish-all-requirements-one-jira           rules  archived  -  -
+hasan-hard-jira-definition                 rules  archived  -  -
+
+# ---------------------------------------------------------------------------
+# environment — machine, network, and tooling facts
+# ---------------------------------------------------------------------------
+repos_location                             environment  active  -  -
+dev-db-connection                          environment  active  -  -
+npm-behind-ntlm-proxy-and-playwright-mcp   environment  active  -  -
+node-startup-slow-defender-atp             environment  active  -  -
+bash-home-is-mapped-drive                  environment  active  -  -
+hook-commands-run-through-bash             environment  active  -  -
+codex-403-needs-occyproxy                  environment  active  -  -
+codex-bridge-mcp-fix                       environment  active  -  -
+shared-wt-dir-is-not-safe-for-my-worktrees environment  active  -  -
+skyops-intent-hook                         environment  active  -  -
+skyops-autosync-sessionstart               environment  active  -  -
+sqlcmd-not-on-bash-path                    environment  active  -  -
+
+# ---------------------------------------------------------------------------
+# procedures — reusable how-to recipes
+# ---------------------------------------------------------------------------
+clearskies2-frontend-worktree-devserver    procedures  active  -  -
+cs-datafactory-local-run-port-trap         procedures  active  -  -
+
+# ---------------------------------------------------------------------------
+# decisions — project and architecture facts that outlive any one ticket
+# ---------------------------------------------------------------------------
+argosphere-renamed-clearskies-platform     decisions  stable  -  -
+bff-serialization-refactor-replaced-soap-writer  decisions  stable  -  -
+
+# ---------------------------------------------------------------------------
+# lessons — reusable gotchas, kept independent of the ticket that found them
+# ---------------------------------------------------------------------------
+clearskies2-lint-and-design-system-rules   lesson  stable  -  -
+getusers-analyst-scope-and-stale-query     lesson  stable  -  -
+alerts-assignee-is-socanalyst-id           lesson  stable  -  -
+git-pull-ff-only-silent-noop               lesson  stable  -  -
+internalsvisibleto-publickey-envvar        lesson  stable  -  -
+csdatafactory-dev-test-baseline            lesson  active  -  -
+
+# ---------------------------------------------------------------------------
+# active tickets — volatile. ticket_state drives whether they stay in startup
+# memory; every one of these gets last_verified / review_after stamped.
+# ---------------------------------------------------------------------------
+cls-14321-etmr-soap-conformance      active-ticket  active  CLS-14321  uncommitted
+cls-14700-response-httpstatus        active-ticket  active  CLS-14700  committed
+cls-14701-response-generic           active-ticket  active  CLS-14701  in-progress
+cls-15279-alerts-ui-compare          active-ticket  active  CLS-15279  in-progress
+cls-15369-ignore-alert-reason        active-ticket  active  CLS-15369  uncommitted
+cls-15373-shift-leader-derivation    active-ticket  active  CLS-15373  uncommitted
+cls-15376-assignee-filter-server-side active-ticket active  CLS-15376  uncommitted
+cls-15377-alerts-status-filter-all   active-ticket  active  CLS-15377  committed
+cls-15378-indicator-strip            active-ticket  active  CLS-15378  blocked
+cls-15379-alerts-export              active-ticket  active  CLS-15379  uncommitted
+cls-15382-decision-outcome-card      active-ticket  active  CLS-15382  in-progress
+aibender-python-incident-parity      active-ticket  active  -          uncommitted
+
+# ---------------------------------------------------------------------------
+# completed tickets — classified here, then archived by `archive -Ticket`.
+# Reusable knowledge was extracted into lesson/decision entries first:
+#   CLS-14316 -> git-pull-ff-only-silent-noop, csdatafactory-dev-test-baseline,
+#                sqlcmd-not-on-bash-path
+#   CLS-15064 -> internalsvisibleto-publickey-envvar
+#   CLS-14779 -> bff-serialization-refactor-replaced-soap-writer
+# ---------------------------------------------------------------------------
+cls-14316-socanalyst-serviceproviderid     active-ticket  active  CLS-14316  merged
+cls-14779-primitive-array-already-fixed    active-ticket  active  CLS-14779  no-work
+cls-15064-temp-column-review               active-ticket  active  CLS-15064  approved

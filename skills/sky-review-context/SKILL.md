@@ -1,6 +1,6 @@
 ---
 name: sky-review-context
-description: Resolves Jira requirement, acceptance criteria, comments, repositories, and review branches before code review begins.
+description: Internal lane of /sky-review. Resolves the Jira requirement, criteria, comments, repos and branches. Do not invoke on its own.
 user-invocable: false
 ---
 

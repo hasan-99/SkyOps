@@ -2,7 +2,7 @@
 name: sky-srv-standards
 description: Dedicated SRV compliance agent. Sweeps a code diff against every SRV in the review catalogue, one code at a time, so no standard is missed. Auto dispatched by sky-review as a mandatory parallel lane. Returns each violated SRV with file:line evidence, and confirms which SRVs were checked and found clean. Read only.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 ---
 
 # SRV Standards Compliance Agent

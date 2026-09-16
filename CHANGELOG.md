@@ -8,6 +8,47 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.7.0] - Guards wired, broken lanes fixed, context hygiene
+
+Driven by a framework audit plus real usage telemetry. The telemetry was the surprise:
+**86% of token spend happens in sessions already above 150k context**, and the rule packs
+cost ~12% — so context size outranks asset overhead by roughly seven to one. Priorities
+were reordered accordingly.
+
+### Fixed
+
+- **The destructive-action guards were never running.** `bin/sky-guard.sh` (the bash port of `git-guard.js` + `sql-guard.js`) existed in the repo but was referenced nowhere in `settings.json`, and `hooks/hooks.json` only applies in plugin mode, which is not how SkyOps is installed. Every "ask before destructive" rule rested on model compliance alone. Now wired as `PreToolUse: Bash` and verified against force-push, reset --hard, DELETE-without-WHERE, and two negative cases.
+- **The five PLAN-stage specialist lanes could not be invoked.** `sky-api`, `sky-service`, `sky-data`, `sky-security`, `sky-performance` all carried `disable-model-invocation: true` while `sky-workflow-task` and `sky-workflow-debug` instructed the model to dispatch them. They silently did nothing. Replaced by real agents (below).
+- **`sky-review` pointed at the wrong specialists** — it listed the five *planning* skills instead of its own `sky-review-*` agents.
+- **The memory reindex targeted whichever store the cwd resolved to**, so sessions started from different directories indexed different stores and they drifted. `install.ps1` now indexes every SkyOps-managed store explicitly.
+
+### Added
+
+- `sky-plan-api`, `sky-plan-service`, `sky-plan-data`, `sky-plan-security`, `sky-plan-performance` — the planning lanes as **agents**. As skills they ran inline and saved nothing; as agents they get context isolation and a cheap model. Skills cannot be re-tiered (see `memory/rules/11-token-efficiency.md`), so this was the only way to get both.
+- `sky-jira-investigator` agent. The ticket bootstrap — description, every comment, every linked issue, every Confluence page at `detail: "full"` — is the largest single tool-output dump in a ticket. It now happens in an agent's context, and `sky-dispatch` receives the distilled requirements instead.
+- `sky-db-investigator` agent. Returns the answer, not the rows. Read-only by construction.
+- `bin/sky-precompact.sh` + `PreCompact` wiring. Compaction is routine at this context size, and it reliably loses operational state (pushed? which AC remain?). The hook prompts a `sky-memory-sync` before the window is discarded.
+- `memory/rules/12-context-hygiene.md` — checkpoint at ~60%, large-tool-output discipline, Playwright accumulation (12% of usage), subagent discipline (13%).
+- Consistency linter in `install.ps1`: catches an asset referenced but not invocable (the dead-lane bug above), a broken reference, an over-budget description, and an unwired hook script. Runs every sync; findings go to `skyops-install-warnings.txt`.
+- `references/` + `~/.claude/skyops-refs/` for material a skill needs only at one moment.
+
+### Changed
+
+- **`sky-rules-memory` and `sky-rules-dotnet` promoted into the always-loaded rules.** Telemetry showed them at 4% and 3% of total spend despite being ~520 and ~460 tokens — only possible by loading many times per session. The load-once rule is advisory and does not hold against a trigger that fires on every C# edit. Paying ~980 tokens once beats paying 520 an unbounded number of times. `sky-rules-jira` and `sky-rules-data` stay on-demand; their triggers are genuinely occasional.
+- `sky-workflow-task/SKILL.md` split 26,249 → 16,043 bytes; the plan-file template and execution engine are read only when actually needed.
+- 25 model-invocable descriptions rewritten to ≤160 chars with explicit gating ("Internal lane of /sky-review. Do not invoke on its own") to stop orchestrator internals auto-firing.
+- `MEMORY.md` caps the active-ticket list at the 5 most recently touched and collapses the rest to one line. 13,865 → 11,917 bytes.
+- `install.ps1` gains a HEAD+dirty-tree stamp gate (unchanged repo exits in ~2s) and prunes orphaned installed assets — it previously only ever copied, so retired assets lingered forever.
+
+### Removed
+
+- `sky-learn` and `sky-recall` retired to `retired/`. They read and wrote `.skyops/knowledge/`, which did not exist in any repo — the learning loop had never run. Lessons go to the memory store that works.
+- The five superseded planning skills, retired to `retired/` rather than deleted (one had uncommitted edits).
+
+### Note
+
+Nothing in this release was committed, pushed, or posted.
+
 ## [2.5.0] - Sky Review lanes are agents, mandatory SRV sweep, leaner report
 
 ### Added

@@ -1,6 +1,6 @@
 ---
 name: review-standards
-description: Classifies review findings against official review standards and SRVs.
+description: Internal lane of /sky-review and /sky-task. Maps a finding to its SRV code and severity. Do not invoke on its own.
 user-invocable: false
 disable-model-invocation: false
 ---
