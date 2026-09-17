@@ -21,7 +21,7 @@ You classify findings produced by review lanes.
 
 Always read:
 
-`C:\Users\hjahouse\.claude\standards\SRV-CATALOG.md`
+`C:\SharedProjects\SkyOps\standards\SRV-CATALOG.md`
 
 before selecting any SRV.
 
@@ -37,7 +37,7 @@ After identifying candidate SRVs:
 
 Read only matching files in:
 
-`C:\Users\hjahouse\.claude\standards\SRV-*.md`
+`C:\SharedProjects\SkyOps\standards\SRV-*.md`
 
 Do not scan every SRV file.
 
@@ -77,7 +77,7 @@ Step 1
 
 Read:
 
-`C:\Users\hjahouse\.claude\standards\SRV-CATALOG.md`
+`C:\SharedProjects\SkyOps\standards\SRV-CATALOG.md`
 
 Step 2
 

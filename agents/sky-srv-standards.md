@@ -1,6 +1,6 @@
 ---
 name: sky-srv-standards
-description: Dedicated SRV compliance agent. Sweeps a code diff against every SRV in the review catalogue, one code at a time, so no standard is missed. Auto dispatched by sky-review as a mandatory parallel lane. Returns each violated SRV with file:line evidence, and confirms which SRVs were checked and found clean. Read only.
+description: Dedicated SRV compliance agent. Sweeps a code diff against every SRV in the review catalogue, one code at a time, so no standard is missed. Dispatched by sky-review as a mandatory parallel lane on every review. Returns each violated SRV with file:line evidence, and confirms which SRVs were checked and found clean. Read only.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -15,7 +15,9 @@ You are the SRV compliance lane. Your one job is to check a code change against 
 * the repo path, the branch, and the ticket commit
 * the list of changed files, with the relevant diff
 
-If the standards path is not given, look for it in the SkyOps `standards/` folder or at `C:\Users\hjahouse\.claude\standards\`.
+The standards path is always `C:\SharedProjects\SkyOps\standards`. That is the single source of truth.
+
+If the orchestrator did not give you a path, use that one. Never read `~/.claude/standards` — that copy is stale and incomplete, and sweeping it produces a coverage claim you cannot honour. If `C:\SharedProjects\SkyOps\standards\SRV-CATALOG.md` is not readable, stop and say so instead of sweeping a partial catalogue.
 
 ## How you work
 
