@@ -1,6 +1,6 @@
 ---
 name: sky-decision
-description: Compare options for backend, SQL or review work: tradeoffs, risk, effort, and the safest next step.
+description: Internal decision helper for C#/.NET 6 backend, SQL, data, incident, and review work. Compares options, tradeoffs, risk, effort, and recommends the safest next step.
 user-invocable: false
 disable-model-invocation: false
 ---

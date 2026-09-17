@@ -1,6 +1,6 @@
 ---
 name: sky-sql-destructive-guard
-description: Fires on new destructive SQL (DROP, TRUNCATE, DELETE/UPDATE without WHERE, dropped tenant filter). Flags the safe alternative.
+description: Implementation-time guard that fires when new/edited code or a migration writes destructive SQL — DROP, TRUNCATE, DELETE/UPDATE without WHERE, ALTER ... DROP, EF ExecuteSqlRaw/ExecuteSqlInterpolated with those, Database.EnsureDeleted, a destructive migration Down, or a change that removes a tenant/customer filter. Flags it at the exact line with the scoped, safe alternative before it reaches a PR or a database. Read-only.
 user-invocable: true
 disable-model-invocation: false
 ---

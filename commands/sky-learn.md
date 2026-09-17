@@ -36,20 +36,6 @@ Lives in the **current working repo**, and is meant to be **committed** — this
   prefs.md       # team/repo preferences
 ```
 
-## Which store? (`/sky-learn` vs `/sky-memory`)
-
-SkyOps has two memory stores and they must not hold the same lesson twice.
-
-| | `/sky-learn` -> `.skyops/knowledge/` | `/sky-memory` -> Claude memory store |
-|---|---|---|
-| Scope | **team**, shared through the repo, committed | **personal**, this machine, loaded into sessions |
-| Holds | repo-specific fixes, patterns, SRV notes, team prefs | environment facts, procedures, decisions, ticket state, cross-repo lessons |
-| Lives in | the working repo | `~/.claude/projects/<project>/memory/` |
-
-Rule of thumb: **if it belongs to the repository, it goes here; if it belongs to the machine, the ticket, or the way of working, it goes to `/sky-memory`.**
-
-Before saving, check the other store too — a lesson worth sharing with the team does not also need a personal copy. When they overlap, keep the team copy and let the personal entry point at it.
-
 ## Write boundary (strict)
 
 This is the **only** SkyOps command that writes, and it writes to exactly one place: **append-only** under `.skyops/knowledge/` in the current repo. Never edit source code, configs, or anything outside that folder. Never run builds/tests/SQL. Never store secrets, tokens, or connection strings.

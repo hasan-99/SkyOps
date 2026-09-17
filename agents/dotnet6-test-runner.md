@@ -1,6 +1,6 @@
 ---
 name: dotnet6-test-runner
-description: Writes and runs high-quality xUnit + NSubstitute tests for recently changed or new .NET 6 code. Invoke after a significant change.
+description: "Use this agent when recently changed or newly written .NET 6 code needs to be tested with high-quality test coverage. This agent should be invoked proactively after significant code changes, new feature implementations, or bug fixes in .NET 6 projects.\\n\\n<example>\\nContext: The user has just written a new service class in a .NET 6 project.\\nuser: 'Please create a OrderProcessingService that handles order validation and payment processing'\\nassistant: 'Here is the OrderProcessingService implementation:'\\n<function call omitted for brevity>\\n<commentary>\\nSince a significant .NET 6 service class was written, use the Agent tool to launch the dotnet6-test-runner agent to write and run high-quality tests for it.\\n</commentary>\\nassistant: 'Now let me use the dotnet6-test-runner agent to create and run comprehensive tests for the new service.'\\n</example>\\n\\n<example>\\nContext: The user has modified an existing repository or data access layer in a .NET 6 project.\\nuser: 'Update the UserRepository to include a method for bulk user retrieval with filtering'\\nassistant: 'I have updated the UserRepository with the new bulk retrieval method.'\\n<commentary>\\nSince changes were made to existing .NET 6 code, use the dotnet6-test-runner agent to validate the changes with appropriate tests.\\n</commentary>\\nassistant: 'Let me now use the dotnet6-test-runner agent to run and potentially add tests covering the changed code.'\\n</example>"
 tools: Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList, EnterWorktree, ExitWorktree, CronCreate, CronDelete, CronList, ToolSearch, Glob, Grep, Read, WebFetch, WebSearch
 model: sonnet
 color: yellow
@@ -168,7 +168,7 @@ Saving a memory is a two-step process:
 ```markdown
 ---
 name: {{memory name}}
-description: Writes and runs high-quality xUnit + NSubstitute tests for recently changed or new .NET 6 code. Invoke after a significant change.
+description: {{one-line description — used to decide relevance in future conversations, so be specific}}
 type: {{user, feedback, project, reference}}
 ---
 

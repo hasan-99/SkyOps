@@ -1,6 +1,6 @@
 ---
 name: sky-i18n-guard
-description: Fires on new DateTime or numeric Parse/ToString: checks InvariantCulture and explicit styles (SRV-H-006).
+description: Implementation-time guard for culture/timezone-dependent DateTime and numeric parsing/formatting (SRV-H-006). Fires the moment new or edited code calls DateTime.Parse/TryParse/ToString, decimal/numeric Parse, ToLower/Compare for key normalization, or ToUniversalTime() without explicit InvariantCulture/DateTimeStyles/OrdinalIgnoreCase, so the defect is caught while typing instead of weeks later in review.
 user-invocable: true
 disable-model-invocation: false
 ---

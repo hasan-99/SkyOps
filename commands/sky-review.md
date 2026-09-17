@@ -23,16 +23,12 @@ Core:
 * sky-review-flow
 * sky-review-finalize
 
-Specialist review lanes — **agents**, dispatched with the Agent tool, only when selected:
-* sky-review-api
-* sky-review-service
-* sky-review-data
-* sky-review-security
-* sky-review-performance
-* sky-srv-standards (mandatory)
-
-These are agents, not skills: they run in their own context so their reading never
-lands in this one. Do not inline their work here.
+Specialists, only when selected:
+* sky-api
+* sky-service
+* sky-data
+* sky-security
+* sky-performance
 
 Evidence and decision:
 * sky-risk
@@ -65,16 +61,6 @@ Review the ticket change, not the whole codebase.
 
 Use `sky-review-context`.
 
-This is the mandatory first action before inspecting code, commits, diffs, branches, or repositories.
-
-Read Jira context in this order:
-
-1. Read the target Jira ticket completely: summary, description, acceptance criteria, metadata, and parent/epic context when relevant.
-2. Resolve and read any Jira tickets referenced from the target ticket context or description when they may affect scope, prior fixes, dependencies, duplication, or expected behavior.
-3. Read all relevant Jira comments on the target ticket.
-4. Resolve and read Jira tickets referenced from those comments when they may affect scope, prior fixes, dependencies, duplication, or expected behavior.
-5. Only after the Jira context and relevant references are understood, resolve repositories and branches and begin code-scope discovery.
-
 Return:
 
 * Jira summary
@@ -82,12 +68,11 @@ Return:
 * code-verifiable acceptance criteria
 * relevant parent context
 * all relevant comments
-* referenced Jira tickets relevant to scope or behavior
 * resolved repositories
 * resolved branches
 * assumptions
 
-Do not start code review until Jira context, relevant Jira references, branch scope, and repository scope are resolved.
+Do not start code review until branch and repository scope is resolved.
 
 ### 2. Build Ticket Scope
 
@@ -223,10 +208,8 @@ Return:
 
 ## Review Invariants
 
-* Jira context comes before any code, commit, diff, branch, or repository inspection.
-* The target Jira description and acceptance criteria must be read before code review starts.
-* Jira comments are part of the required input and must be read before code review starts.
-* Relevant Jira tickets referenced from the description, context, parent, or comments must be resolved and read before code review starts.
+* Jira context comes before code review.
+* Jira comments are part of the input.
 * Explicit user branch/repo args override discovered values.
 * Every involved repo must be resolved.
 * Ticket-tagged commits are the primary scope anchor.

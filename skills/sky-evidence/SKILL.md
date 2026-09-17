@@ -1,6 +1,6 @@
 ---
 name: sky-evidence
-description: Check that each claim in a report is backed by proof from this session; flag unverified assertions.
+description: Internal evidence checker for C#/.NET 6 backend, SQL, data, incident, PR, and documentation work. Links claims to proof and flags missing evidence.
 user-invocable: false
 disable-model-invocation: false
 ---

@@ -1,6 +1,6 @@
 ---
 name: sky-change-summary
-description: Internal. Summarises the current git change from diff stats. Called by /sky-pr and workflow reports, not on its own.
+description: Internal change summarizer for git changes. Produces a concise summary from changed files, diff stats, and small focused diffs when needed.
 user-invocable: false
 disable-model-invocation: false
 ---

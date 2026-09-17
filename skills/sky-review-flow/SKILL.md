@@ -1,6 +1,6 @@
 ---
 name: sky-review-flow
-description: Internal lane of /sky-review. End-to-end integration check across the touched layers. Do not invoke on its own.
+description: Performs the mandatory end-to-end integration review across all touched layers after specialist findings are collected.
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: sky-async-guard
-description: Fires on new async code: checks every DB/HTTP/file call is truly async and a CancellationToken is threaded (SRV-H-001, L-010).
+description: Implementation-time guard that fires when new/edited code declares an async method or adds an await chain. Checks every DB/HTTP/file call bottoms out at a real *Async API (not sync-call-in-async or Task.Run-wrapped-sync), that private helpers on the async path are async too, and that a CancellationToken is accepted and threaded through. Flags the anti-pattern at the exact line with an inline fix, stopping SRV-H-001 before it's committed.
 user-invocable: true
 disable-model-invocation: false
 ---
