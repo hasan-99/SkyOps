@@ -112,6 +112,23 @@ Collect all lane verdicts. Every requirement id from Phase 1 must have exactly o
 
 From the diff and the gaps, list small optional improvements or points to confirm before closing. Keep it short. Do not invent findings to fill space.
 
+## Phase 6. Route the fix
+
+Whenever there is at least one Mismatch or Remaining / Missing requirement, end the report by naming the exact command to run next. Give one copy-pasteable line, not a menu. Base the choice on the gaps you actually found:
+
+| Shape of the gap | Command to suggest |
+|---|---|
+| One or two Mismatches, localized, root cause already visible in the diff | `/sky-fast <one line describing the fix>` |
+| Missing requirements, or several requirements across files or repos | `/sky-task <KEY> <the requirement ids still to implement>` |
+| A requirement is implemented but behaves wrong and the cause is not visible in the diff | `/sky-debug <the wrong behaviour>` |
+| Only test coverage is missing for an otherwise covered requirement | `/sky-test` |
+
+If the only open items are in Suggestions and every requirement is a Match, suggest `/sky-review` for the defect and SRV pass instead, and say no fix command is needed.
+
+Always close with the re-check line: `/sky-jira-verify <KEY>` after the fix lands.
+
+Never run the suggested command yourself. Naming it is not permission to execute it.
+
 ---
 
 # Output Format
@@ -139,6 +156,10 @@ Keep it simple and easy to read. Lists, not tables, not walls of text.
 
 ## Verdict
 <All requirements covered | Gaps remain | Changes needed> — <one short sentence>.
+
+## Next Step
+Run: `/sky-task <KEY> <requirement ids still open>`
+Then: `/sky-jira-verify <KEY>` to re-check coverage.
 ```
 
 Rules for the output:
@@ -147,6 +168,7 @@ Rules for the output:
 * Sort each section by requirement id.
 * If a section is empty, keep the header and write `- none`.
 * One line verdict at the top mirrors the Verdict section: "All requirements covered", "Gaps remain", or "Changes needed".
+* The Next Step section is always last. Pick the Run line from the Phase 6 table for the gaps you actually found. If every requirement is a Match, replace the Run line with "No fix command needed" and keep the follow-up line.
 * Never use em dashes or en dashes or arrows in prose. Use short sentences and colons. Keep code, keys, branch names, and paths as is.
 
 ---
