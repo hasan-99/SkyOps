@@ -234,13 +234,27 @@ if (version && exists(P("CHANGELOG.md"))) {
 // 6. README command table matches commands/ on disk, both directions.
 if (exists(P("README.md"))) {
   const readme = read(P("README.md"));
+  // Check every shipped asset type, not just commands. Only checking commands
+  // is how 7 agents, 5 skills and 2 scripts went undocumented while this
+  // passed clean.
   const onDisk = listMd("commands").map((f) => path.basename(f, ".md"));
-  for (const c of onDisk)
-    if (!readme.includes(c))
-      add("warn", "docs", `command exists but is undocumented in README`, `commands/${c}.md`);
+  const assets = [
+    ["command", "commands", onDisk],
+    ["skill", "skills", exists(P("skills")) ? fs.readdirSync(P("skills")) : []],
+    ["agent", "agents", listMd("agents").map((f) => path.basename(f, ".md"))],
+    ["script", "scripts", exists(P("scripts")) ? fs.readdirSync(P("scripts")) : []],
+  ];
+  for (const [kind, dir, names] of assets)
+    for (const n of names)
+      if (!readme.includes(n))
+        add("warn", "docs", `${kind} exists but is undocumented in README`, `${dir}/${n}`);
+  // Reverse direction: a README reference to something that no longer ships.
+  // Must know about every asset type the forward check knows about, or
+  // documenting an agent looks like a phantom reference.
+  const known = new Set(assets.flatMap(([, , names]) => names).map((n) => n.replace(/\.(js|sh|md)$/, "")));
   for (const m of readme.matchAll(/`(sky-[\w-]+)`/g))
-    if (!onDisk.includes(m[1]) && !exists(P("skills", m[1])))
-      add("warn", "docs", `README references \`${m[1]}\` which is neither a command nor a skill`, "README.md");
+    if (!known.has(m[1]))
+      add("warn", "docs", `README references \`${m[1]}\` which no longer exists as a command, skill, agent, or script`, "README.md");
 
   // A stated count that drifts is worse than no count.
   const srvFiles = exists(P("standards"))

@@ -55,11 +55,38 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 
 ### Skills (background specialists — `sky-review` and `sky-task` call these for you)
 
-`sky-api`, `sky-data`, `sky-service`, `sky-security`, `sky-performance`, `sky-risk`, `sky-evidence`, `sky-decision`, `sky-verification`, `sky-change-summary`, `review-standards`, `sky-srv-select`, `sky-repo-profile`.
+**Inspection lanes (PLAN stage — `sky-task`, `sky-debug`):** `sky-api`, `sky-data`, `sky-service`, `sky-security`, `sky-performance`, `sky-verification`.
+
+**Judgement helpers:** `sky-risk`, `sky-evidence`, `sky-decision`, `sky-change-summary`, `review-standards`, `sky-srv-select`, `sky-repo-profile`, `sky-next`.
+
+**`sky-review` internals:** `sky-review-context`, `sky-review-scope`, `sky-review-flow`, `sky-review-finalize`.
 
 `sky-srv-select` shortlists the SRVs a change can plausibly reach (plus the explicit exclusions) so lanes check the relevant standards closely instead of sweeping all 16 thinly — it focuses the other lanes, it never replaces the mandatory full sweep. `sky-repo-profile` establishes the facts every lane otherwise rediscovers: layout, build and single-test commands, test conventions, sibling-repo constraints.
 
 `sky-verification` is now goal-backward: it proves a C# change is not just written but actually **wired up** (registered in DI, routed, `AddHostedService`, `DbSet` present) and not a stub — and it auto-triggers after C# edits.
+
+### Agents (parallel subagents — `sky-review` dispatches these)
+
+Each runs in its own context with its own model, so what a lane reads never enters yours.
+
+| Agent | Model | Lane |
+|---|---|---|
+| `sky-review-api` | haiku | Routing, verbs, route templates, status codes, contracts, controller thinness (SRV-L-004) |
+| `sky-review-service` | sonnet | Handler/query correctness, SOLID, async + cancellation (SRV-H-001, SRV-L-010) |
+| `sky-review-data` | sonnet | Repository/query correctness, UoW boundaries (SRV-M-003), culture-sensitive persistence (SRV-H-006) |
+| `sky-review-security` | sonnet | Authz/authn on the new path, injection, secrets, cross-tenant reachability |
+| `sky-review-performance` | sonnet | N+1, per-item DB calls, hot paths, caching (SRV-M-007) |
+| `sky-srv-standards` | sonnet | Sweeps the diff against **every** SRV, one code at a time. Always runs, never gated |
+| `dotnet6-test-runner` | sonnet | Writes and runs xUnit + NSubstitute tests for changed .NET 6 code |
+
+Which lanes run is decided deterministically — see `scripts/lane-gate.js` below.
+
+### Scripts (invoked by commands, not hooks)
+
+| Script | Used by | Does |
+|---|---|---|
+| `scripts/skyops-lint.js` | `sky-lint` | Checks SkyOps itself. `--quiet` for errors only; exit 1 on error |
+| `scripts/lane-gate.js` | `sky-review` | Picks review lanes from the changed file list — no model call, no repo read. `--selftest` runs 8 cases |
 
 ### Hooks (deterministic guardrails — they run themselves)
 
