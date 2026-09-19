@@ -43,6 +43,8 @@ Never push. Never post to Jira. Report the diff and let the user drive git beyon
 
 Do these before writing a single test they catch the known traps in this repo:
 
+0. **Reuse the scope if it is current.** If a `/sky-scope` manifest exists for this branch and its `head_sha` matches `HEAD`, take the changed symbols and covering tests from it rather than re-deriving them from the diff. Different sha or no manifest: continue normally.
+
 1. **Repo + branch.** Confirm you are in `C:\SharedProjects\CS_Datafactory_v2`. Resolve the current branch (`git branch --show-current`). If a Jira key is in play, resolve branch/repos from the ticket's "Branches for review" comment first, then from context.
 2. **Sibling repo compatibility.** This solution references `..\..\..\ModelUtil_Core\ModelUtil_Core\ModelUtil_Core.csproj` a **separate repo** at `C:\SharedProjects\ModelUtil_Core`. If `ModelUtil_Core` is checked out on a branch incompatible with this one, the solution does not build and every `dotnet test` fails with `CS0234`/`CS0246`. Check `git -C C:\SharedProjects\ModelUtil_Core branch --show-current`; if the build is broken for this reason, **flag it and ask** rather than assuming your new test caused the failure.
 3. **Diff.** Get the changed source files: `git diff --name-only origin/dev...HEAD` plus uncommitted `git diff --name-only`. This set is the scope.
@@ -66,6 +68,9 @@ For each changed **source** file (ignore changes under `test/`, docs, config):
 ---
 
 ## House Rules (write tests exactly like this)
+
+> In another repo, derive these with `sky-repo-profile` rather than assuming the conventions
+> below — they are this repo's, not .NET's.
 
 **Framework & libraries**
 - **xUnit 2.4.1** `[Fact]`, `[Theory]` + `[InlineData]`. No NUnit/MSTest.
@@ -137,3 +142,10 @@ Keep it tight:
 ## Tone
 
 Concise, evidence-based. Every "covered" claim names the test that pins it. Never weaken a test to go green; never widen scope to chase coverage.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

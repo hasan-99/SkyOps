@@ -71,3 +71,5 @@ If nothing's wrong, say so plainly: "No destructive SQL/data patterns in the cha
 ## Final Rules
 
 Be concise. Never run the SQL. Never apply the change unasked. This is a stop-before-you-commit gate, not a review — defer to `sky-risk` / `/sky-review` for anything broader.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

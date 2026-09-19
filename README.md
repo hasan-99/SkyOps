@@ -38,18 +38,26 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 | `sky-docs` | Turns a feature/flow into a Confluence-ready doc |
 | `sky-explain` | Turns a dense (often AI-written) Jira ticket into a simple, visual HTML brief — what's going on, what they want, and what your code flow does, grounded in the real repo |
 | `sky-map` | Draws the architecture map of a repo you just opened |
+| **`sky-lint`** | **New.** Reviews SkyOps itself — unwired hooks, bad frontmatter, installer gaps, hard-coded paths, drifted doc counts, version mismatches. Run before shipping a SkyOps change |
+| **`sky-scope`** | **New.** Reads the branch diff once into a reusable manifest; `sky-review`, `sky-test`, `sky-pr`, `sky-task` and `sky-jira-verify` reuse it instead of each rediscovering the same diff |
+| **`sky-test-gap`** | **New.** Reports what's actually untested and the minimum tests worth adding — before `sky-test` writes any |
+| **`sky-verify-fix`** | **New.** Verifies one fix instead of re-running a whole review |
+| **`sky-drift`** | **New.** Separates *written* from *merged* from *running* — is the fix really on Dev, and is Dev actually running it? Catches code that's correct on a branch but absent downstream |
 | **`sky-test`** | **New.** Change-driven unit-test loop for CS_Datafactory_v2 — maps the diff to its tests, writes/updates them in the repo's xUnit + NSubstitute style, runs the affected ones, and commits |
 | `sky-doctor` / `sky-health` | Quick "is this repo/setup okay" checks |
 | `status-line` | A terminal-style status readout: branch, git state, next action |
 | **`sky-async-guard`** | **New.** Catches sync-I/O-inside-async bugs the moment you write them — not in review |
 | **`sky-i18n-guard`** | **New.** Catches locale/timezone-dependent date parsing the moment you write it |
 | **`sky-sql-destructive-guard`** | **New.** Catches destructive SQL/EF (DELETE/UPDATE with no WHERE, TRUNCATE, DROP, dropped tenant filters) the moment you write it — with the scoped safe version |
-| **`sky-learn`** | **New.** Saves a reusable lesson (a fix, a pattern, an SRV gotcha) to `.skyops/knowledge/` — auto-fires when something worth remembering shows up |
-| **`sky-recall`** | **New.** Surfaces those saved lessons at the start of a debug/investigate/review, so known fixes aren't re-derived |
+| **`sky-learn`** | Saves a reusable lesson (a fix, a pattern, an SRV gotcha) to the machine-local store — auto-fires at the end of `sky-review`, `sky-debug`, `sky-comment-triage` and `sky-task` for **confirmed** findings only |
+| **`sky-recall`** | Deliberate, wider search of those lessons. Everyday recall is automatic — see the `knowledge-recall` hook below |
+| **`sky-lesson-export`** | **New.** Shares one vetted lesson from the private store into the current repo's `.skyops/knowledge/`, after a secrets/staleness gate. Opt-in, one at a time, never commits |
 
 ### Skills (background specialists — `sky-review` and `sky-task` call these for you)
 
-`sky-api`, `sky-data`, `sky-service`, `sky-security`, `sky-performance`, `sky-risk`, `sky-evidence`, `sky-decision`, `sky-verification`, `sky-change-summary`, `review-standards`.
+`sky-api`, `sky-data`, `sky-service`, `sky-security`, `sky-performance`, `sky-risk`, `sky-evidence`, `sky-decision`, `sky-verification`, `sky-change-summary`, `review-standards`, `sky-srv-select`, `sky-repo-profile`.
+
+`sky-srv-select` shortlists the SRVs a change can plausibly reach (plus the explicit exclusions) so lanes check the relevant standards closely instead of sweeping all 16 thinly — it focuses the other lanes, it never replaces the mandatory full sweep. `sky-repo-profile` establishes the facts every lane otherwise rediscovers: layout, build and single-test commands, test conventions, sibling-repo constraints.
 
 `sky-verification` is now goal-backward: it proves a C# change is not just written but actually **wired up** (registered in DI, routed, `AddHostedService`, `DbSet` present) and not a stub — and it auto-triggers after C# edits.
 
@@ -62,6 +70,7 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 | **sql-guard** | Bash running destructive SQL | Asks before DROP / TRUNCATE / DELETE-or-UPDATE-with-no-WHERE / `dotnet ef database drop` — shows the safe alternative |
 | **git-guard** | Dangerous git | Asks before force push, push to main, `reset --hard`, `clean -f`, `branch -D`, history rewrites |
 | **dotnet-format** | `.cs` edits | Reminds you to `dotnet format` + build before commit (set `SKYOPS_AUTOFORMAT=1` to auto-format the changed file) |
+| **knowledge-recall** | every prompt | Scores the prompt against the lesson store and injects only strong matches. Deterministic recall — it doesn't depend on the model remembering to look. Wire the **`.sh`**: it fires on every prompt, and node costs ~9.3s per spawn on a Defender-scanned box against ~1.2s for bash |
 
 They **ask** rather than hard-block — an intentional op is one confirmation away — and a guard bug never blocks you (default is always allow). Details + how to disable: [`hooks/README.md`](hooks/README.md).
 
@@ -72,11 +81,46 @@ They **ask** rather than hard-block — an intentional op is one confirmation aw
 - **`SRV-CATALOG.md`** — the team's named list of known code-review issues (16 SRVs: sync-in-async, locale/timezone bugs, NoTracking silent-no-op writes, whole-table loads, and more), mirrored from the ClearSkiesPlatform `StandardReviewViolations` source of truth. `sky-review` reads this catalog and cites SRVs by number in real PR comments instead of re-explaining the same issue every time.
 - **`GROUNDING.md`** — the shared evidence law every review lane follows: cite `file:line` or the finding is dropped, no hedging, `INSUFFICIENT EVIDENCE` blocks an approve, and a deterministic severity→score rubric. Keeps findings honest and consistent across skills.
 
-## Why the two new guard commands exist
+## The learning loop
+
+Every review already produces exactly what a memory needs — an SRV-classified finding with
+`file:line` proof and a fix. Until now that was thrown away at the end of each run. The loop
+closes it:
+
+```
+sky-review / sky-debug / sky-comment-triage / sky-task
+        │  confirmed findings only
+        ▼
+   /sky-learn ──────► ~/.claude/skyops-knowledge/lessons/*.md
+        │                         │
+        │                         ▼
+        │              knowledge-recall hook  ──► injected on a matching prompt
+        ▼
+   hits >= 3  ──► promote: a guard, an SRV candidate, or a repo rule (asks first)
+```
+
+Four properties make it work rather than become a junk drawer:
+
+- **Confirmed only.** A finding that failed validation never becomes a lesson. An unconfirmed
+  lesson is worse than none — it gets injected into a future session as if it were true.
+- **Recall is a hook, not a hope.** It scores every prompt and stays silent below the
+  threshold. A recall block that fires on weak matches gets ignored, and then it's dead.
+- **Recurrence is counted.** Re-hitting a lesson increments `hits` instead of adding a
+  duplicate, so the store knows what keeps biting.
+- **Promotion is the point.** At `hits >= 3` the framework proposes getting *stricter* —
+  becoming a guard or a rule — rather than reporting the same thing a fourth time. Promotion
+  always asks first; it changes how every future session behaves.
+
+The store is machine-local and outside every repo, because lessons carry client repo
+internals and this repo is published. Sharing one is a deliberate per-lesson act
+(`/sky-lesson-export`), which lands an untracked file for a human to review — never a commit.
+
+## Why the guard commands exist
 
 Every other command here is read-only and runs *after* code exists — great for catching problems, less great at stopping them from happening. The SRV catalog has two High-severity entries (SRV-H-001, SRV-H-006) and nothing was catching either one while the code was actually being written. `sky-async-guard` and `sky-i18n-guard` fix that gap — they're the only two commands meant to fire mid-write, not post-hoc.
 
 ## A couple of honest notes
 
 - This used to be **CopilotOps**, a GitHub Copilot asset library with its own install CLI. That's all gone now — see [ADR 0002](docs/decisions/0002-rename-to-skyops-claude-code-plugin.md) for why and what changed.
-- This plugin only guards 2 of the catalog's 11 SRVs at implementation time so far (the 2 High-severity ones). The rest are still review-time only. More guards can follow the same pattern as `sky-async-guard`/`sky-i18n-guard` if you want fuller coverage.
+- This plugin guards **3 of the catalog's 16** SRVs at implementation time so far (`sky-async-guard`, `sky-i18n-guard`, `sky-sql-destructive-guard`). The rest are still review-time only. The learning loop is the intended way to decide which guard to write next: let recurrence counts (`knowledge-recall.js --stats`) show which SRV actually keeps biting, instead of guessing.
+- The lesson store starts **empty**. Recall has nothing to return until `/sky-learn` has run a few times — the first week is capture-only, and that's expected.

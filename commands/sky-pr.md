@@ -32,6 +32,10 @@ Use English by default unless the user asks for Arabic.
 
 ## Token-Saving Inspection
 
+**Reuse the scope first.** If a `/sky-scope` manifest exists for this branch and its
+`head_sha` matches `HEAD`, build the PR description from its changed files and symbols rather
+than re-reading the diff. Stale or missing: inspect normally.
+
 Start with the smallest useful git information:
 
 ```text
@@ -181,3 +185,10 @@ Be concise.
 Do not include internal reasoning.
 Do not include unrelated advice.
 Do not implement anything.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

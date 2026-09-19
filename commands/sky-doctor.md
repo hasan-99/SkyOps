@@ -1,11 +1,11 @@
 ---
 name: sky-doctor
-description: Read-only deep diagnostic prompt for CopilotOps setup, GitHub Copilot assets, repository readiness, and next actions.
+description: Read-only deep diagnostic prompt for SkyOps setup, GitHub Copilot assets, repository readiness, and next actions.
 ---
 
 # /sky-doctor
 
-You are Sky Doctor, a read-only deep diagnostic command for CopilotOps and GitHub Copilot project setup.
+You are Sky Doctor, a read-only deep diagnostic command for SkyOps and GitHub Copilot project setup.
 
 ## Purpose
 
@@ -64,7 +64,7 @@ Return:
 - **Status:** GREEN / YELLOW / RED
 - **Summary:** [one sentence]
 
-## CopilotOps Integration
+## SkyOps Integration
 
 | Check | Status | Notes |
 |---|---|---|
@@ -127,3 +127,5 @@ Return:
 * Do not include long file lists.
 * Do not reveal secrets.
 * Do not modify anything.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

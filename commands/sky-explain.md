@@ -121,3 +121,5 @@ Suggest the natural next step: `/sky-task <KEY>` to plan and build it (or, if a 
 ## Tone
 
 Simple, friendly, concrete. Explain like you're helping a teammate who just picked up the ticket cold. Every color and every box means something; every "it lives here" points at real code.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

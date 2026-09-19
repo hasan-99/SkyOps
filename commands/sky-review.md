@@ -96,6 +96,11 @@ Do not start code review until branch and repository scope is resolved.
 
 ### 2. Build Ticket Scope
 
+**Reuse a scope manifest if one is current.** If `.skyops/scope/<key>.scope.md` exists and its
+`head_sha` matches `HEAD`, take the changed files, symbols, affected projects and candidate
+SRVs from it instead of rediscovering them. If the sha differs or the file is absent, say so
+in one line and scope normally — never reason from a stale manifest.
+
 Use `sky-review-scope`.
 
 Return:
@@ -132,17 +137,29 @@ Environment failures are not implementation failures.
 
 ### 4. Plan Specialist Lanes
 
-Inspect the changed hunks and compact flow map.
+Use `sky-srv-select` to shortlist the SRVs this change can plausibly reach, and pass that
+shortlist to the lanes so each checks the relevant standards closely. This is a focusing aid
+only — `sky-srv-standards` still sweeps the full catalogue on every review, and a shortlisted
+code is never itself a finding.
 
-Select the surface lanes that have a concrete review surface:
+Gate the lanes deterministically from the changed file list — no model call, no repo read:
 
-* `sky-review-api`
-* `sky-review-service`
-* `sky-review-data`
-* `sky-review-security`
-* `sky-review-performance`
+```bash
+node "C:/SharedProjects/SkyOps/scripts/lane-gate.js" --scope .skyops/scope/<key>.scope.md
+# or pipe the paths:  git diff --name-only <base>...HEAD | node ".../lane-gate.js"
+```
 
-Do not run Security or Performance automatically.
+It returns the required lanes and, for each skipped one, the reason. Selecting lanes by
+judgement drifts run to run; this makes the same decision reproducible and costs nothing.
+
+The gate is **asymmetric on purpose**, and you must preserve that:
+
+* You may **add** a lane the gate skipped — say why in one line.
+* You may **never drop** a lane the gate required.
+* Ambiguity includes a lane. A skipped lane must always carry its stated reason into the report.
+
+Available lanes: `sky-review-api`, `sky-review-service`, `sky-review-data`,
+`sky-review-security`, `sky-review-performance`.
 
 `sky-srv-standards` is not part of this selection. It always runs.
 
@@ -249,6 +266,21 @@ Return:
 1. The short review result
 2. A short paste-ready Jira comment
 
+### 12. Capture
+
+After the report, run `/sky-learn` for the findings that **survived step 9 validation** — the
+ones with real `file:line` proof. Those are the highest-quality lessons the framework
+produces: already classified against an SRV, already grounded in evidence.
+
+Capture confirmed findings only. Never capture a lane's hunch, a dropped finding, or anything
+marked `INSUFFICIENT EVIDENCE`. If a finding matches an existing lesson, `/sky-learn`
+increments its `hits` instead of adding a duplicate — that recurrence count is what later
+justifies promoting it into a guard.
+
+Capture is silent bookkeeping: one line per lesson, after the report, never inside it. It
+writes only to the machine-local lesson store. It never commits, never posts, never touches
+the repo.
+
 ## Output
 
 Keep the result short and clear. Show only:
@@ -303,3 +335,10 @@ Correctness over preference.
 Parallelism is a tool, not a goal.
 
 Maximum defect detection per token.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

@@ -1,6 +1,6 @@
 ---
 name: sky-performance
-description: Focused performance review skill for C#/.NET 6 backend planning.
+description: Focused performance review skill for C#/.NET 6 backend planning. PLAN-stage lane: used by /sky-task and /sky-debug to inspect before code is written. The REVIEW-stage counterpart is the sky-review-performance agent, which reviews a diff after the fact. Pick by stage, not by topic.
 user-invocable: false
 disable-model-invocation: true
 ---

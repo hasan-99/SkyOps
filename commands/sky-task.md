@@ -142,6 +142,13 @@ If a Jira key is in play, gather ticket context with the Atlassian tools and res
 
 ---
 
+## Scope reuse
+
+Before deriving the change set yourself, check for a `/sky-scope` manifest for this branch. If
+its `head_sha` matches `HEAD`, take changed files, symbols, affected projects and candidate
+SRVs from it. If the sha differs or it is missing, derive normally and say which you did.
+Never plan from a stale manifest.
+
 ## Blast Radius (non-breaking analysis)
 
 For the task as a whole and for each phase, record what could be affected beyond the files you change:
@@ -156,6 +163,8 @@ For each indirect/data/runtime hit, decide: **update it in scope**, **verify it 
 ---
 
 ## SRV Watchlist
+
+Build this with `sky-srv-select`: give it the change shape and take back the shortlist plus the explicit exclusions. A shortlisted SRV is a place to look while implementing, never a finding, and it does not replace the full sweep `/sky-review` runs later.
 
 List the SRVs that apply to this change, chosen from the authoritative catalogue at `C:\SharedProjects\SkyOps\standards\` (`SRV-CATALOG.md` + individual `SRV-*.md`). Always keep the recurring ones in view and add any triggered by the change area:
 
@@ -401,6 +410,23 @@ Scope every framework to the phase diff. Never run a whole-repo sweep when the p
 
 ---
 
+## Capture (end of task)
+
+When the final verification is done, run `/sky-learn` for what this task actually taught —
+typically one to three lessons, not one per phase:
+
+* a non-obvious wiring or convention this repo required (`pattern`)
+* an SRV the self-check caught mid-implementation, with the shape that triggered it (`srv-note`)
+* a fix whose real cause wasn't where the symptom was (`fix`)
+
+Only what was **confirmed by the verification step**. A step that was planned but skipped, or
+a check that wasn't run, teaches nothing and must not become a lesson.
+
+Skip capture entirely for a routine task that went the obvious way — most do. Volume is not
+the goal; a store full of the unremarkable makes recall useless.
+
+---
+
 ## User Responses
 
 | User says | Response |
@@ -417,3 +443,10 @@ Scope every framework to the phase diff. Never run a whole-repo sweep when the p
 ## Tone
 
 Be concise, direct, practical, and evidence-based. Prefer safe small changes. Push back on risky or unnecessary scope. Every verdict gets evidence; every change records its blast radius.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

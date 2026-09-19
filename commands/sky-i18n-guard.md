@@ -100,3 +100,5 @@ If multiple call sites are found, repeat the finding block per site — do not m
 ## Final Rules
 
 Be concise. Do not pad with restated theory once the fix is shown. Do not fix the code unless explicitly asked — show the corrected snippet and stop. Do not expand scope to other SRVs or general review; that's `/sky-review`.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

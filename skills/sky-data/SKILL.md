@@ -1,6 +1,6 @@
 ---
 name: sky-data
-description: Focused data-layer inspection skill for EF Core, DbContext, entities, repositories, migrations, and queries on .NET 6.
+description: Focused data-layer inspection skill for EF Core, DbContext, entities, repositories, migrations, and queries on .NET 6. PLAN-stage lane: used by /sky-task and /sky-debug to inspect before code is written. The REVIEW-stage counterpart is the sky-review-data agent, which reviews a diff after the fact. Pick by stage, not by topic.
 user-invocable: false
 disable-model-invocation: true
 ---

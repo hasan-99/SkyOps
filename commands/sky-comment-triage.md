@@ -235,6 +235,25 @@ Next:
 Then: /sky-review, on the correct ticket branch, and run lint + tests.
 ```
 
+## Capture
+
+After the recommendation, run `/sky-learn` for each point you judged **valid against the real
+code** — and, just as usefully, for each point you judged **invalid**. A reviewer's recurring
+false positive is worth saving as an `srv-note`: it stops a future session re-litigating the
+same misread, and stops the review lanes re-flagging the same shape.
+
+Capture the verdict you actually proved with `file:line`. Never capture a point you marked
+unclear or could not verify.
+
+One line after the report. Capture is not a fix — the boundary below still holds.
+
 ## Final Rules
 
 Be concise. Do not pad the report with reasoning that isn't evidence. Do not fix anything — stop at the recommendation plus the suggested command, and wait to be asked. Naming the next command is not permission to run it.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

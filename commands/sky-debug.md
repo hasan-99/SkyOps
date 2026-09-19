@@ -25,7 +25,7 @@ No `APPROVE PLAN` = no code changes. Investigation and reading are allowed befor
 
 Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
 
-CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+SkyOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
 
 ## Hard Rules (Always Follow)
 
@@ -230,6 +230,25 @@ After applying the fix, return:
 
 * [Anything important, or `None`]
 
+## Capture
+
+Once the root cause is **traced to its source** — not guessed — run `/sky-learn` to save it.
+A root cause is exactly the shape of lesson that pays off later: an error text a future prompt
+will contain, a real cause, and the change that resolved it.
+
+Save only a cause you actually proved. If the fix was applied, capture after it is confirmed
+working; if the report stopped at options, capture the cause alone. A wrong lesson gets
+injected into a future session as if it were true, so when in doubt, skip it.
+
+One line after the report. Never commit, never post.
+
 ## Tone
 
 Be concise, direct, and practical. Find the real cause fast. Fix small. Avoid overthinking and over-engineering.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

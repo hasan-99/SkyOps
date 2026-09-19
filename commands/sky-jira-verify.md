@@ -80,6 +80,10 @@ Keep them atomic. Split "add the flag and expose it in the response" into two re
 
 ## Phase 2. Scope the changes
 
+**Reuse first.** If `.skyops/scope/<key>.scope.md` exists and its `head_sha` matches `HEAD`,
+take the changed files, symbols and requirement mapping from it instead of rediscovering them.
+Stale sha or no manifest: scope normally, and say which you did in one line.
+
 List the changed files and the exact diff for each ticket commit. Read surrounding code only where a requirement check needs it. Never load whole folders or projects.
 
 ## Phase 3. Dispatch verification subagents IN PARALLEL
@@ -196,3 +200,10 @@ Missing is a valid, important answer. Do not mark something Match to be tidy.
 Real parallel lanes, not sequential ones pretending to be parallel.
 
 No verdict without proof from the actual branch.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

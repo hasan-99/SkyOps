@@ -1,6 +1,6 @@
 ---
 name: sky-api
-description: Focused API inspection skill for C#/.NET 6 controllers, endpoints, DTOs, routes, and contracts.
+description: Focused API inspection skill for C#/.NET 6 controllers, endpoints, DTOs, routes, and contracts. PLAN-stage lane: used by /sky-task and /sky-debug to inspect before code is written. The REVIEW-stage counterpart is the sky-review-api agent, which reviews a diff after the fact. Pick by stage, not by topic.
 user-invocable: false
 disable-model-invocation: true
 ---

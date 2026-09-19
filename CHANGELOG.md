@@ -8,6 +8,148 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.7.0] - Framework self-checks, reusable scope, and the location axis
+
+### Added
+
+- New `/sky-lint` + `scripts/skyops-lint.js` — SkyOps reviewing itself: frontmatter validity and
+  name/filename agreement, hooks that ship but are wired in no `hooks.json`, installer coverage
+  gaps, hard-coded machine paths, README counts that have drifted from `standards/`, version
+  agreement across `VERSION`/`package.json`/`CHANGELOG`, and docs pointing at generated files
+  the engine no longer writes. Found 4 real issues on its first run against this repo.
+- New `/sky-scope` — reads the branch diff once into a reusable manifest (changed files,
+  symbols, affected projects, covering tests, requirements, candidate SRVs). `/sky-review`,
+  `/sky-test`, `/sky-pr`, `/sky-task` and `/sky-jira-verify` now all check for a current
+  manifest before rediscovering the same diff. Manifests are a cache: a consumer must confirm
+  `head_sha` matches `HEAD` or fall back to normal discovery.
+- New `/sky-test-gap` — reports what behaviour changed, what already covers it, and the minimum
+  tests worth adding, ranked, before `/sky-test` writes anything. Writes nothing itself.
+- New `/sky-verify-fix` — verifies one fix and its adjacent blast radius instead of re-running a
+  full review. `UNVERIFIED` is a first-class verdict.
+- New `/sky-drift` — separates *written* from *merged* from *running*: is the change really on
+  the base branch (by content, since squash merges defeat SHA checks), are its tests there too,
+  and is the environment actually running it. Deliberately does **not** re-check acceptance
+  criteria — that remains `/sky-jira-verify`.
+- New internal skills `sky-srv-select` (shortlists the SRVs a change can plausibly reach, plus
+  explicit exclusions, so lanes check the relevant standards closely — it focuses the lanes and
+  never replaces the mandatory full sweep) and `sky-repo-profile` (layout, build and single-test
+  commands, test conventions, sibling-repo constraints; cached per repo).
+
+- New `scripts/lane-gate.js` — deterministic `sky-review` lane selection from the changed file
+  list alone: no model call, no repo read. `sky-review` step 4 previously chose lanes by
+  judgement, which drifts run to run. The gate is **asymmetric on purpose**: the orchestrator
+  may add a lane it skipped, never drop one it required, and ambiguity includes a lane. Ships
+  with `--selftest` (8 cases, all passing).
+
+- New internal skill `sky-next` — the standard closing block for every command: what is still
+  **Open** (unverified checks first, then unmapped ACs, missing tests, location gaps, max three)
+  and one **Next** command to type. All 27 commands now either wire it or declare
+  `<!-- sky-next: not-applicable -->` with a reason, and `sky-lint` enforces that.
+
+### Fixed
+
+- **Duplication sweep.** The five lane *skills* (`sky-api`, `sky-data`, `sky-service`,
+  `sky-security`, `sky-performance`) and the five same-topic review *agents* looked like
+  duplicates but are not — the skills are PLAN-stage lanes used by `/sky-task` and `/sky-debug`,
+  the agents are REVIEW-stage lanes for `/sky-review`. They were being confused because nothing
+  said so; each skill description now states its stage and names its counterpart. Nothing was
+  deleted: both have live callers.
+- `/sky-scope` overlapped the existing `sky-review-scope` skill. They are now explicitly
+  layered — `sky-review-scope` is the ticket-scope builder, `/sky-scope` calls it and persists
+  the manifest — rather than two parallel paths.
+- Stale product name: `sky-debug`, `sky-doctor`, `sky-fast`, `sky-health` and `sky-map` still
+  said "CopilotOps" after the ADR 0002 rename. Renamed; `sky-lint` now catches it. The README's
+  historical note is deliberately unchanged.
+- `sky-test-nudge.js` was wired in no `hooks.json` event, so it never fired for plugin users.
+  Now wired as `PostToolUse` on `Edit|Write`; verified it fires on CS_Datafactory_v2 C# source
+  and stays silent for test files, `obj/`, and other repos.
+- `agents/dotnet6-test-runner.md` hard-coded `C:\Users\hjahouse\...` as its memory path. Now
+  resolved from the home directory at runtime.
+- The `git-guard.sh`, `sql-guard.sh` and `sky-test-nudge.sh` bash ports existed only on one
+  machine and were never in the repo, so `install.ps1` could not distribute them and a rebuild
+  would have lost them. Now committed. Each was scanned for secrets and hard-coded user paths
+  and smoke-tested (silent on benign input, `ask` on a force push / bare `DELETE`) first.
+
+- **Hook parity is now checked by rule set, not file size.** `sky-lint` extracts the
+  user-visible rule strings from each `.js`/`.sh` pair and errors if they differ, naming the
+  rules present on only one side. The first version of this check compared line counts and
+  was wrong: every `.sh` is 2-3x its `.js` purely because it hand-rolls the JSON parsing
+  `JSON.parse` provides for free, so it reported three guards as divergent when
+  `git-guard`, `sql-guard` and `sky-test-nudge` were each verified to have identical rules
+  and identical filters. Verified by injecting a deliberate rule change (caught) and
+  reverting (clean).
+
+### Notes
+
+- `/sky-agent-gate` was proposed and **not** added as a skill: `sky-review` step 4 already
+  selected lanes. The real gap was that the criteria were vague LLM judgement, so the fix was
+  to make the existing step deterministic (`lane-gate.js`) rather than add an orchestration
+  layer on top of it.
+- Model tiering was reviewed and needed no change: all 7 agents already declare a model
+  (`sky-review-api` on haiku, the rest sonnet, none on opus). Commands and skills run on the
+  session model and cannot be re-tiered, so lane *gating* — not model choice — is where the
+  remaining saving is.
+- `/sky-converge` was proposed and **not** added: `/sky-task` already maintains a requirement
+  checklist, status section and resume path, and `/sky-jira-verify` already reports Remaining.
+  A third place computing "what's left" adds sync burden, not capability.
+- `/sky-deployed`, floated earlier as its own command, was folded into `/sky-drift` rather than
+  shipped alongside it.
+
+## [2.6.0] - The learning loop: automatic capture, deterministic recall, promotion
+
+`/sky-learn` and `/sky-recall` shipped in 2.5.0 but never produced anything — no
+`.skyops/knowledge/` store existed on any machine. The cause was a cold-start deadlock:
+`sky-recall` only fired *if* the store already existed, so it never fired, so the store never
+got written. Capture and recall were both prompt-level hopes, and the commands that actually
+produce validated findings never fed them. This release closes the loop.
+
+### Added
+
+- New `hooks/knowledge-recall.sh` — the `UserPromptSubmit` hook, and **the one to wire**. It
+  scores each prompt against the lesson store and injects only strong matches (min score 2,
+  max 3 lessons), making recall deterministic instead of dependent on the model remembering
+  to call `/sky-recall`. Pure bash, zero subprocess spawns on the hot path: it reads a single
+  pre-generated `index.rec`. That index is US-separated (0x1F) rather than tab-separated
+  because tab is IFS whitespace: bash collapses a run of tabs, so an empty field — a lesson
+  with no `srv`, which is allowed — would silently shift every field after it.
+- New `hooks/knowledge-recall.js` — the portable reference implementation of the same scoring,
+  plus the `--reindex`, `--list` and `--stats` CLI that `/sky-learn` calls after a write.
+- Both fail open and silent on every error path: garbage stdin, missing store, malformed
+  lesson, absent `prompt` key.
+- `install.ps1` now copies `hooks/*.sh` as well as `*.js`; previously the bash ports were
+  never installed.
+- New `/sky-lesson-export` — shares one vetted lesson from the private store into the current
+  repo's `.skyops/knowledge/`, behind a gate that checks for secrets, personal or tenant
+  detail, relevance, and staleness. Opt-in, one lesson per invocation, `disable-model-invocation`,
+  and it never commits.
+- **Promotion.** A lesson that reaches `hits >= 3` stops being just a recall entry: `/sky-learn`
+  proposes turning it into an implementation-time guard, an SRV candidate, or a repo rule.
+  Always asks first — promotion changes how every future session behaves. This is what makes
+  the loop self-correcting rather than a growing notebook.
+- **Automatic capture** wired into the four commands that already produce validated findings:
+  `sky-review` (new step 12, capturing findings that survived validation), `sky-debug` (traced
+  root causes), `sky-comment-triage` (verified verdicts, including useful false positives), and
+  `sky-task` (end-of-task lessons). Confirmed findings only.
+
+### Changed
+
+- The lesson store moved from per-repo `.skyops/knowledge/` to **machine-local**
+  `~/.claude/skyops-knowledge/` (override with `$SKYOPS_KNOWLEDGE_DIR`). Lessons carry client
+  repo internals and the SkyOps repo is published; automatic capture into a version-controlled
+  folder would publish them. Team sharing is now explicit, per lesson, via `/sky-lesson-export`.
+- Lessons are one structured file each (frontmatter: `id`, `type`, `srv`, `repo`, `files`,
+  `triggers`, `hits`, `status`) instead of four free-text markdown files. Frontmatter is what
+  makes recall scorable and recurrence countable. `INDEX.md` is now generated, not hand-maintained.
+- `/sky-learn` gained an explicit confirmed-only capture rule, a dedupe-and-increment step, and
+  the promotion check. `/sky-recall` no longer stops when the store is missing, and must verify
+  a cited `file:line` still exists before recommending a lesson.
+- `install.ps1` prints the one-time `UserPromptSubmit` wiring for `knowledge-recall.js`.
+
+### Fixed
+
+- README claimed the plugin guards "2 of the catalog's 11 SRVs" — stale on both counts. It is
+  3 of 16.
+
 ## [2.5.0] - Sky Review lanes are agents, mandatory SRV sweep, leaner report
 
 ### Added

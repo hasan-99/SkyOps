@@ -318,3 +318,10 @@ Do not ask for approval to change files.
 Do not write an implementation plan unless the user asks.
 
 Your job is to investigate and report.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

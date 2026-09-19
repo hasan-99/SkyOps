@@ -21,6 +21,17 @@
       ]
     }
   ],
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/knowledge-recall.js",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
   "PostToolUse": [
     {
       "matcher": "Edit|Write|MultiEdit",
@@ -29,6 +40,17 @@
           "type": "command",
           "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/dotnet-format.js",
           "timeout": 60
+        }
+      ]
+    },
+    {
+      "matcher": "Edit|Write",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/sky-test-nudge.js",
+          "timeout": 30,
+          "statusMessage": "sky-test coverage check"
         }
       ]
     }

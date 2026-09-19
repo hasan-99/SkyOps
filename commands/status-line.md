@@ -163,3 +163,5 @@ Use these visual conventions:
 ```
 
 Keep the report short. Do not include long file lists.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

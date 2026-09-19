@@ -442,3 +442,10 @@ Then return the Confluence-ready page content.
 Do not include implementation plans.
 Do not include unrelated advice.
 Do not ask for approval unless the user asked you to save or change files.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

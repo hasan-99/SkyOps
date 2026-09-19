@@ -70,3 +70,5 @@ If nothing's wrong, say so plainly: "No sync-I/O-in-async or missing-token issue
 ## Final Rules
 
 Be concise. Do not rewrite unrelated code. Do not run builds or tests. This is a nudge, not a full review — defer to `/sky-review` for anything broader. Do not flag code outside the async call path just touched.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->

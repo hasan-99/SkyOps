@@ -25,7 +25,7 @@ No `APPROVE PLAN` = no code changes.
 
 Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
 
-CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+SkyOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
 
 ## Hard Rules (Always Follow)
 
@@ -278,3 +278,10 @@ After implementation, return:
 ## Tone
 
 Be concise, direct, and practical. Avoid overthinking, over-engineering, and long explanations.
+
+## Closing block
+
+End the output with `sky-next`: the **Open** items (unverified checks, missing tests,
+unmapped ACs, location gaps, unactioned findings — three at most) and one **Next** command.
+Unverified claims come first. Omit the block only if this run genuinely leaves nothing to act
+on. Naming a command there is a suggestion, never permission to run it.

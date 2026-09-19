@@ -1,6 +1,6 @@
 ---
 name: sky-service
-description: Focused service and business logic inspection skill for C#/.NET 6 repositories.
+description: Focused service and business logic inspection skill for C#/.NET 6 repositories. PLAN-stage lane: used by /sky-task and /sky-debug to inspect before code is written. The REVIEW-stage counterpart is the sky-review-service agent, which reviews a diff after the fact. Pick by stage, not by topic.
 user-invocable: false
 disable-model-invocation: true
 ---

@@ -73,17 +73,31 @@ Get-ChildItem -Path (Join-Path $RepoRoot 'agents') -Filter '*.md' -File | ForEac
     Copy-One $_.FullName (Join-Path $AgentDst $_.Name)
 }
 
-# 4. Hook scripts -> ~/.claude/bin/<name>.js
+# 4. Hook scripts -> ~/.claude/bin/<name>.js and <name>.sh
 #    Copies the script only. The settings.json wiring is intentionally NOT touched
 #    (see note below) — the installer never edits settings.json / secrets / hooks wiring.
+#
+#    Both extensions ship. Where a .sh port exists, wire THAT one: node costs
+#    ~9.3s per spawn on a Defender-scanned Windows box against ~1.2s for bash
+#    (measured), which matters enormously for hooks that fire on every prompt or
+#    every edit. The .js stays the portable reference implementation.
 Write-Host "Hook scripts:" -ForegroundColor Green
 $hooksDir = Join-Path $RepoRoot 'hooks'
 if (Test-Path $hooksDir) {
-    Get-ChildItem -Path $hooksDir -Filter '*.js' -File | ForEach-Object {
+    Get-ChildItem -Path $hooksDir -File | Where-Object { $_.Extension -in '.js', '.sh' } | ForEach-Object {
         Copy-One $_.FullName (Join-Path $BinDst $_.Name)
     }
 } else {
     Write-Host "  (no hooks/ in repo)"
+}
+
+# 4b. Utility scripts -> ~/.claude/bin/ (not hooks; invoked by commands, e.g. sky-lint)
+$scriptsDir = Join-Path $RepoRoot 'scripts'
+if (Test-Path $scriptsDir) {
+    Write-Host "Scripts:" -ForegroundColor Green
+    Get-ChildItem -Path $scriptsDir -File | Where-Object { $_.Extension -in '.js', '.sh' } | ForEach-Object {
+        Copy-One $_.FullName (Join-Path $BinDst $_.Name)
+    }
 }
 
 # 5. Clean stale artifacts
@@ -115,4 +129,24 @@ if (Test-Path $nudge) {
     Write-Host '          "statusMessage": "sky-test coverage check" } ] }' -ForegroundColor DarkGray
     Write-Host '    ]' -ForegroundColor DarkGray
     Write-Host "  (Use your real home path in the command; %USERPROFILE% is shown for reference.)"
+}
+
+$recall = Join-Path $BinDst 'knowledge-recall.sh'
+if (Test-Path $recall) {
+    Write-Host ""
+    Write-Host "Hook wiring (one-time, manual):" -ForegroundColor Yellow
+    Write-Host "  knowledge-recall.sh is installed but not wired. It makes /sky-learn lessons"
+    Write-Host "  surface automatically instead of depending on the model calling /sky-recall."
+    Write-Host '  Add this UserPromptSubmit hook to ~/.claude/settings.json:'
+    Write-Host ''
+    Write-Host '    "UserPromptSubmit": [' -ForegroundColor DarkGray
+    Write-Host '      { "hooks": [ { "type": "command",' -ForegroundColor DarkGray
+    Write-Host '          "command": "\"C:\\Program Files\\Git\\usr\\bin\\bash.exe\" \"%USERPROFILE%/.claude/bin/knowledge-recall.sh\"",' -ForegroundColor DarkGray
+    Write-Host '          "timeout": 10 } ] }' -ForegroundColor DarkGray
+    Write-Host '    ]' -ForegroundColor DarkGray
+    Write-Host "  (Use your real home path; %USERPROFILE% is shown for reference.)"
+    Write-Host "  Wire the .sh, not the .js — this fires on every prompt, and node costs ~9.3s"
+    Write-Host "  per spawn here against ~1.2s for bash. Use the .js only where bash is absent."
+    Write-Host "  The store lives at ~/.claude/skyops-knowledge (machine-local, never committed)."
+    Write-Host "  It stays silent until a lesson strongly matches the prompt."
 }

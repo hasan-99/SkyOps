@@ -13,7 +13,7 @@ Your job is to inspect the repository structure lightly and produce a useful arc
 
 Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
 
-CopilotOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+SkyOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
 
 ## Safety
 
@@ -121,3 +121,5 @@ Use `/sky-explain` to understand a specific flow, or `/sky-task` to plan a chang
 * Use `Unknown` when the purpose is not obvious.
 * Do not perform deep analysis.
 * Do not include secrets or config values.
+
+<!-- sky-next: not-applicable — this command answers a question or is an advisory guard; it implies no follow-up action. -->
