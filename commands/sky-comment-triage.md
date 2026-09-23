@@ -125,114 +125,131 @@ When **every** point is Invalid or Needs more info, suggest no fix command. Say 
 
 ## Output Format
 
-Flat labelled sections. No markdown headers, no tables, no bold. Label on its own line, content under it, one blank line between sections. Short lines, bullets over prose.
+Group the points by **what the reader does next**, not by the reviewer's numbering. The reader's
+first question is "what do I have to fix on this ticket?" — answer that in the first screen.
 
-**Single point** — return exactly this shape:
+Markdown, rendered in a terminal. Use headers, bold and inline code. Keep every line short:
+evidence on one line, fix on the next. Prose paragraphs are the failure mode this format exists to
+prevent.
 
-```
-Comment Triage — <KEY or file/area>
-
-Verdict: <Valid | Partially valid | Invalid | Needs more info>
-
-Why:
-<1-3 short lines. The evidence goes here: name the file and line that proves the verdict.>
-
-Fix:
-- <smallest safe change, one bullet each>
-- <...>
-
-Files:
-- <file>
-- <...>
-
-Scope:
-<rough size, e.g. ~60 lines removed, small cleanup only.>
-<state plainly what was not run, e.g. Tests not run yet.>
-
-Recommendation:
-<Accept & fix | Accept, scope down | Accept, needs more info | Reject>
-
-Next:
-<command line, then the follow-up check>
-```
-
-**Multiple points** — same labels, repeated per point, with the shared sections collected once at the end:
+**Multiple points** — return this shape:
 
 ```
-Comment Triage — <KEY or file/area>
+## <KEY or file/area> — comment triage
+<n> points · <a> fix here (<p> partial) · <b> separate · <c> need info · <d> rejected
+Reviewer: <name>, <date>
+Verified against: <branch / worktree / tree actually read, one line>
 
-Points: <n> (<x> valid, <y> invalid, <z> need info)
+### ✅ Fix on this ticket (<n>)
 
-1. <the point, restated in one line>
-Verdict: <...>
-Why:
-<evidence, with file:line>
-Fix:
-- <change>
+**<num>. <the point in five words>** · <High|Med|Low>
+`<file>:<line>` <the evidence, one or two short lines>
+→ **Fix:** <the smallest safe change>
 
-2. <the next point, restated in one line>
-Verdict: <...>
-Why:
-<evidence, with file:line>
-Fix:
-- <change>
+**<num>. <next point>** · <sev> · *partially valid*
+`<file>:<line>` <evidence, and what the reviewer got wrong>
+→ **Fix:** <change>
 
-Files:
-- <every file touched by the accepted points>
+### 📋 Separate ticket (<n>)
 
-Scope:
-<combined size across accepted points>
-<what was not run>
+**<num>. <point>** · `<file>:<line>` — <why it is out of scope, one line>
+→ **Fix:** <the change, and which repo/ticket carries it>
 
-Recommendation:
-<per point, then one overall line, e.g. Accept 1, reject 2.>
+### ❓ Needs more info (<n>)
 
-Next:
-<one command covering the accepted points, then the follow-up check>
+**<num>. <point>** — <exactly what the user must supply>
+
+### ❌ Rejected (<n>)
+
+**<num>. <point>** · `<file>:<line>` — <the evidence that refutes it>
+→ **Reply:** <one line to send the reviewer>
+
+---
+
+**Files:** `<path>` · `<path>` · `<path>`
+**Scope:** <combined size across accepted points, one line>
+**Not run:** <build, lint, tests — name every check that did not run>
+**Next:** `<one command covering the accepted points>` → `<follow-up check>`
+```
+
+**Single point** — a genuinely single claim skips the buckets:
+
+```
+## <KEY or file/area> — comment triage
+**<Valid | Partially valid | Invalid | Needs more info>** · <High|Med|Low>
+Verified against: <tree read, one line>
+
+`<file>:<line>` <the evidence, one or two short lines>
+
+→ **Fix:** <the smallest safe change>
+→ **Fix:** <second change, if any>
+
+---
+
+**Files:** `<path>`
+**Scope:** <size> · **Not run:** <checks>
+**Next:** `<command>` → `<follow-up>`
 ```
 
 Section rules:
 
-* Use the multi-point shape whenever Phase 1 found more than one point, even if they all land on the same verdict. Use the single-point shape only for a genuinely single claim.
-* Every point from Phase 1 appears in the output with its own `Verdict:`. Never drop a point for being minor, and never merge two points under one verdict.
-* `Points:` counts must add up to the number of points listed below them.
-* `Why:` carries the evidence. Every claim names a real file and line. No file/line means the verdict is not Valid.
-* `Also affected:` — insert between `Why:` and `Fix:` only when Phase 3 ran and found the same defect elsewhere. One bullet per location with its file and line. Omit the section entirely otherwise.
-* `Fix:` — omit for Invalid. For Needs more info, list what you would check, not what you would change.
-* `Scope:` — always state what was not executed (tests, build, lint). Never imply a check that did not run.
-* If the proposed fix is narrower than what the reviewer suggested, say so in one line under `Recommendation:`.
-* `Next:` — the Phase 6 routing command, then the follow-up on the next line. For Invalid, write "Nothing to run." plus a one line reply suggestion for the reviewer. For Needs more info, write exactly what the user must supply.
+* **Every bucket header is printed, even at zero.** `### ❌ Rejected (0)` tells the reader nothing was quietly dropped. Omitting it makes the reader wonder.
+* Every point from Phase 1 appears in exactly one bucket, keeping its original number, so `1, 2, 3` stay traceable to the reviewer's own list even when reordered. Never drop a point for being minor, never merge two points.
+* The header's bucket counts must add up to the total point count, and each bucket's `(<n>)` must match the points inside it. `(<p> partial)` is a note on the fix-here bucket, not a bucket of its own — do not add it to the sum.
+* **Evidence first, fix second.** Every point leads with `file:line`. A point with no file and line is not Valid — put it in Needs more info.
+* Severity is the reviewer's if they gave one; otherwise yours. Say so in one line if you disagree with theirs.
+* Mark a partially valid point with `*partially valid*` and use its evidence line to say **what the reviewer got wrong**, not just what they got right. That line is the whole value of the verdict.
+* `**Also:**` — add one line under a point only when Phase 3 found the same defect elsewhere, listing each location's file and line. Omit it otherwise; never manufacture it.
+* Omit the `→ **Fix:**` line for a Rejected point; give `→ **Reply:**` instead. For Needs more info give neither — state what you would check.
+* If your proposed fix is narrower than what the reviewer suggested, say so on the fix line itself.
+* `**Not run:**` is mandatory and never empty on a read-only run. Name the checks that did not run. Never imply a check that did not happen.
+* Put anything that qualifies the whole triage — a stale branch, a tree you could not read, a fetch older than the reviewer's comment — on the `Verified against:` line at the top, not buried at the bottom.
+* `**Next:**` is the Phase 6 routing command then the follow-up. When every point is Rejected or Needs more info, write `**Next:** nothing to run` and say what is missing. Naming a command is never permission to run it.
 
 Worked example of the shape:
 
 ```
-Comment Triage — CLS-15382
+## CLS-15379 — comment triage
+6 points · 4 fix here (1 partial) · 2 separate · 0 need info · 0 rejected
+Reviewer: Mina Maher Nicola, 2026-09-21
+Verified against: dev-latest (origin/Dev + 1) — the ticket branch is 252 commits behind and its line numbers do not match
 
-Verdict: Valid
+### ✅ Fix on this ticket (4)
 
-Why:
-The demo fallback is permanently disabled, so DEMO_ANALYSIS and the isFallback branches are unreachable.
-useAIAnalysis.ts:41 sets the flag to false and nothing else writes it.
+**1. Non-OK page swallowed** · High
+`useAlertsExport.ts:94` returns an empty page on a non-OK envelope; `:56` reads that as a completed walk.
+→ **Fix:** throw in `fetchPage`, reconcile `collected.length` against `totalCount` before writing.
 
-Fix:
-- Remove the demo fallback constant and payload
-- Remove shouldUseFallback / hasNoContent
-- Remove isFallback from the hook and UI branches
+**2. Dedup counter exits early** · High
+`useAlertsExport.ts:64` counts pre-dedup rows against `totalCount`. `useAlertsExport.test.ts:83-93` asserts the bug as correct.
+→ **Fix:** compare `collected.length`; rewrite that test.
 
-Files:
-- useAIAnalysis.ts
-- AISecOpsSection/index.tsx
+**3. No user message** · Med · *partially valid*
+`index.tsx:551` is an empty catch — but transport errors **do** toast today via `errorClassifier.ts:55`. The gap is the 200-with-error-body case and the missing success toast.
+→ **Fix:** reuse the `soar/ExportButton.tsx:43-49` toast pattern.
 
-Scope:
-~60 lines removed, small cleanup only.
-Tests not run yet.
+**4. Page cap truncates silently** · Med
+`useAlertsExport.ts:22` caps at 200 pages and `:68` returns the partial list unsignalled.
+→ **Fix:** none of its own — point 1's reconciliation turns a cap exit into a thrown error.
 
-Recommendation:
-Accept & fix.
+### 📋 Separate ticket (2)
 
-Next:
-/sky-fast remove the dead demo fallback path from useAIAnalysis and AISecOpsSection
-Then: /sky-review, on the correct ticket branch, and run lint + tests.
+**5. No ORDER BY tie-break** · `AlertFilteringService.cs:103,227` — backend repo, reviewer already routed it to a [WS] ticket.
+→ **Fix:** `.ThenBy(a => a.AlertId)` at both call sites.
+
+**6. CSV formula injection** · `exportGridRowsToCsv.ts:59` — pre-existing, reaches 16 call sites.
+→ **Fix:** apply the existing `sanitizeCsvFormulaInjection` inside the shared helper.
+
+### ❓ Needs more info (0)
+
+### ❌ Rejected (0)
+
+---
+
+**Files:** `useAlertsExport.ts` · `useAlertsExport.test.ts` · `index.tsx`
+**Scope:** ~25 lines in the hook, ~10 in index.tsx, one test rewritten and two added.
+**Not run:** build, lint, tests, browser. Read-only inspection only.
+**Next:** `/sky-fast throw on a non-OK envelope in useAlertsExport, count collected.length, reconcile totalCount, toast success and failure` → `/sky-review`, then `/sky-jira-verify CLS-15379`
 ```
 
 ## Capture

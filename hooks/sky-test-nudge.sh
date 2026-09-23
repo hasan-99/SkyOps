@@ -83,11 +83,14 @@ json_escape() {
   JE=$out
 }
 
-# Mirrors the Node 1500ms stdin fallback: never hang the tool pipeline waiting
-# for input that is not coming. bash assigns partial input on timeout.
-RAW=''
-if [ ! -t 0 ]; then IFS= read -r -d '' -t 2 RAW; fi
-[ -z "${RAW//[[:space:]]/}" ] && exit 0
+# Decide on one hook payload. Sets NUDGE_CONTEXT to the additionalContext text,
+# or '' when there is nothing to say. Always returns 0, never exits and never
+# forks, so edit-dispatch.sh can source this file and call it in-process instead
+# of paying a second ~0.75s spawn.
+sky_test_nudge_decide() {
+  RAW=$1
+  NUDGE_CONTEXT=''
+  [ -z "${RAW//[[:space:]]/}" ] && return 0
 
 FP=''
 TI=${RAW#*\"tool_input\"}
@@ -96,27 +99,40 @@ if [ -z "$FP" ]; then
   TR=${RAW#*\"tool_response\"}
   if [ "$TR" != "$RAW" ]; then json_str "$TR" "filePath" && FP=$R; fi
 fi
-[ -z "$FP" ] && exit 0
+[ -z "$FP" ] && return 0
 
 SLASHED=${FP//\\//}
 P=${SLASHED,,}
 
 # Only this repo.
-[[ $P == *"/cs_datafactory_v2/"* ]] || exit 0
+[[ $P == *"/cs_datafactory_v2/"* ]] || return 0
 # Only C# source.
-[[ $P == *".cs" ]] || exit 0
+[[ $P == *".cs" ]] || return 0
 # Skip the test tree itself (we're nudging about the source that changed).
-[[ $P == *"/test/"* ]] && exit 0
-[[ $P == *".tests/"* ]] && exit 0
+[[ $P == *"/test/"* ]] && return 0
+[[ $P == *".tests/"* ]] && return 0
 # Skip generated / build / non-unit-tested artifacts.
-[[ $P == *"/obj/"* || $P == *"/bin/"* ]] && exit 0
-[[ $P == *"/migrations/"* ]] && exit 0
-[[ $P == *".g.cs" || $P == *".designer.cs" ]] && exit 0
-[[ $P == *"/assemblyinfo.cs" || $P == *"assemblyattributes.cs" ]] && exit 0
+[[ $P == *"/obj/"* || $P == *"/bin/"* ]] && return 0
+[[ $P == *"/migrations/"* ]] && return 0
+[[ $P == *".g.cs" || $P == *".designer.cs" ]] && return 0
+[[ $P == *"/assemblyinfo.cs" || $P == *"assemblyattributes.cs" ]] && return 0
 
 NAME=${SLASHED##*/}
 
-json_escape "You just edited C# source in CS_Datafactory_v2 (${NAME}). Before treating this change as done, close the test loop with /sky-test diff: map the change to the tests that cover it, edit existing tests or create missing ones in the repo's xUnit + NSubstitute style (plain Assert, per-module CreateSut/InMemory-vs-mock convention), run only the affected tests, fix failures within budget, and commit per the run's commit mode (ask-first unless commit=auto). If this edit was itself a test file or has no runtime surface, ignore this."
+NUDGE_CONTEXT="You just edited C# source in CS_Datafactory_v2 (${NAME}). Before treating this change as done, close the test loop with /sky-test diff: map the change to the tests that cover it, edit existing tests or create missing ones in the repo's xUnit + NSubstitute style (plain Assert, per-module CreateSut/InMemory-vs-mock convention), run only the affected tests, fix failures within budget, and commit per the run's commit mode (ask-first unless commit=auto). If this edit was itself a test file or has no runtime surface, ignore this."
+}
 
-printf '%s' "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$JE\"}}"
-exit 0
+# --- standalone -------------------------------------------------------------
+# Unchanged wire behaviour when this file is executed directly. Mirrors the
+# Node 1500ms stdin fallback: never hang the tool pipeline waiting for input
+# that is not coming. bash assigns partial input on timeout.
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  RAW=''
+  if [ ! -t 0 ]; then IFS= read -r -d '' -t 2 RAW; fi
+  sky_test_nudge_decide "$RAW"
+  if [ -n "$NUDGE_CONTEXT" ]; then
+    json_escape "$NUDGE_CONTEXT"
+    printf '%s' "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$JE\"}}"
+  fi
+  exit 0
+fi

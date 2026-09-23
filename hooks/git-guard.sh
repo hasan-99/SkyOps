@@ -93,20 +93,21 @@ json_escape() {
   JE=$out
 }
 
-allow() { exit 0; }
-
-ask() {
+emit_ask() {
   json_escape "$1"
   printf '%s' "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"$JE\"}}"
-  exit 0
 }
 
-RAW=''
-if [ ! -t 0 ]; then IFS= read -r -d '' RAW; fi
+# Decide on one hook payload. Sets GIT_REASON to the ask reason, or '' to allow.
+# Always returns 0, never exits and never forks, so guard-dispatch.sh can source
+# this file and call it in-process instead of paying a second ~0.75s spawn.
+git_guard_decide() {
+  RAW=$1
+  GIT_REASON=''
 
 TI=${RAW#*\"tool_input\"}
 [ "$TI" = "$RAW" ] && TI=''
-json_str "$TI" "command" || allow
+json_str "$TI" "command" || return 0
 CMD=$R
 
 WL='(^|[^[:alnum:]_])'
@@ -118,7 +119,7 @@ NN="[^${NL}]"
 # The original's first gate is case-SENSITIVE /\bgit\b/ — `GIT push` is not
 # guarded there either, so this stays case-sensitive deliberately.
 P_GIT="${WL}git${WR}"
-[[ $CMD =~ $P_GIT ]] || allow
+[[ $CMD =~ $P_GIT ]] || return 0
 
 # Split into lines: the original scopes most checks with [^\n]*, so a dangerous
 # token on line 2 must not be attributed to a `git push` on line 1.
@@ -209,13 +210,24 @@ P_FILTER="${WL}git${S}+(filter-branch|filter-repo)${WR}"
 rest_has 'push' '--delete([^[:alnum:]_]|$)' lc \
   && reasons+=('deleting a remote branch/ref')
 
-[ ${#reasons[@]} -eq 0 ] && allow
+[ ${#reasons[@]} -eq 0 ] && return 0
 
 joined=''
 for r in "${reasons[@]}"; do
   if [ -z "$joined" ]; then joined=$r; else joined="$joined"$'\n'"  - $r"; fi
 done
 
-ask "SkyOps git guard — destructive/irreversible git op detected:
+GIT_REASON="SkyOps git guard — destructive/irreversible git op detected:
   - ${joined}
 If this is intentional, confirm. Safer options: --force-with-lease instead of --force, a feature branch instead of pushing to main, \`git stash\` instead of reset --hard."
+}
+
+# --- standalone -------------------------------------------------------------
+# Unchanged wire behaviour when this file is executed directly.
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  RAW=''
+  if [ ! -t 0 ]; then IFS= read -r -d '' RAW; fi
+  git_guard_decide "$RAW"
+  [ -n "$GIT_REASON" ] && emit_ask "$GIT_REASON"
+  exit 0
+fi

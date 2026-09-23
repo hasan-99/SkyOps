@@ -99,24 +99,25 @@ json_escape() {
   JE=$out
 }
 
-allow() { exit 0; }
-
-ask() {
+emit_ask() {
   json_escape "$1"
   printf '%s' "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"$JE\"}}"
-  exit 0
 }
 
-# --- read stdin (no fork; $(cat) would cost ~0.5s) ----------------------------
-RAW=''
-if [ ! -t 0 ]; then IFS= read -r -d '' RAW; fi
+# Decide on one hook payload. Sets SQL_REASON to the ask reason, or '' to allow.
+# Always returns 0, never exits and never forks, so guard-dispatch.sh can source
+# this file and call it in-process instead of paying a second ~0.75s spawn.
+# Measured here: exec 0.75s, subshell fork 0.43s, sourced call ~0s.
+sql_guard_decide() {
+  RAW=$1
+  SQL_REASON=''
 
 # Scope to tool_input, mirroring `data.tool_input && data.tool_input.command`.
 TI=${RAW#*\"tool_input\"}
 [ "$TI" = "$RAW" ] && TI=''
-json_str "$TI" "command" || allow
+json_str "$TI" "command" || return 0
 CMD=$R
-[ -z "${CMD//[[:space:]]/}" ] && allow    # JS: !cmd.trim()
+[ -z "${CMD//[[:space:]]/}" ] && return 0    # JS: !cmd.trim()
 
 # All SQL checks below are case-insensitive in the original (/i). Rather than
 # rely on nocasematch (which does not cover ${var//pat/}), match lowercase
@@ -136,7 +137,7 @@ P_EFDB="${WL}dotnet${S}+ef${S}+database${S}+(drop|update)${WR}"
 
 # Only guard actual SQL execution. If no SQL runner is invoked, we can't claim
 # it's destructive (it might just be reading a migration file).
-if ! [[ $LC =~ $P_RUNNER ]] && ! [[ $LC =~ $P_EFDB ]]; then allow; fi
+if ! [[ $LC =~ $P_RUNNER ]] && ! [[ $LC =~ $P_EFDB ]]; then return 0; fi
 
 P_EFDROP="${WL}dotnet${S}+ef${S}+database${S}+drop${WR}"
 P_DROP="${WL}drop${S}+(table|database|schema|index|view|procedure|column)${WR}"
@@ -167,13 +168,25 @@ if [[ $LC =~ $P_ALT ]]; then
   [[ $_rest =~ $P_DROPW ]] && reasons+=('ALTER TABLE ... DROP removes a column/constraint')
 fi
 
-[ ${#reasons[@]} -eq 0 ] && allow   # SQL runs, but it's not destructive.
+[ ${#reasons[@]} -eq 0 ] && return 0   # SQL runs, but it's not destructive.
 
 joined=''
 for r in "${reasons[@]}"; do
   if [ -z "$joined" ]; then joined=$r; else joined="$joined"$'\n'"  - $r"; fi
 done
 
-ask "SkyOps SQL guard — destructive operation detected:
+SQL_REASON="SkyOps SQL guard — destructive operation detected:
   - ${joined}
 Safe alternative: add a specific WHERE (id/tenant/date), prefer a soft delete, run SELECT COUNT(*) of the target rows first, or scope the migration. See /sky-sql-destructive-guard for the full check."
+}
+
+# --- standalone -------------------------------------------------------------
+# Unchanged wire behaviour when this file is executed directly: read stdin (no
+# fork; $(cat) would cost ~0.3s), decide, emit, always exit 0.
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  RAW=''
+  if [ ! -t 0 ]; then IFS= read -r -d '' RAW; fi
+  sql_guard_decide "$RAW"
+  [ -n "$SQL_REASON" ] && emit_ask "$SQL_REASON"
+  exit 0
+fi
