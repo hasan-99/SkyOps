@@ -87,19 +87,28 @@ Which lanes run is decided deterministically — see `scripts/lane-gate.js` belo
 |---|---|---|
 | `scripts/skyops-lint.js` | `sky-lint` | Checks SkyOps itself. `--quiet` for errors only; exit 1 on error |
 | `scripts/lane-gate.js` | `sky-review` | Picks review lanes from the changed file list — no model call, no repo read. `--selftest` runs 8 cases |
+| `scripts/hook-doctor.js` | run directly | Shows which hook implementation (`.js` or `.sh`) is actually active per event, and flags any guard wired twice. `--parity` diffs each `.js` against its `.sh`; `--metrics` summarises recorded hook/tool/prompt/compaction measurements (opt-in via `SKYOPS_METRICS=1`) |
 
 ### Hooks (deterministic guardrails — they run themselves)
 
 `hooks/` holds real Claude Code hooks — safety that runs in the harness, not prompt rules the model can forget. Once the plugin is loaded they fire on every session:
 
-| Hook | Fires on | Does |
-|---|---|---|
-| **sql-guard** | Bash running destructive SQL | Asks before DROP / TRUNCATE / DELETE-or-UPDATE-with-no-WHERE / `dotnet ef database drop` — shows the safe alternative |
-| **git-guard** | Dangerous git | Asks before force push, push to main, `reset --hard`, `clean -f`, `branch -D`, history rewrites |
-| **dotnet-format** | `.cs` edits | Reminds you to `dotnet format` + build before commit (set `SKYOPS_AUTOFORMAT=1` to auto-format the changed file) |
-| **knowledge-recall** | every prompt | Scores the prompt against the lesson store and injects only strong matches. Deterministic recall — it doesn't depend on the model remembering to look. Wire the **`.sh`**: it fires on every prompt, and node costs ~9.3s per spawn on a Defender-scanned box against ~1.2s for bash |
+One process per event: a dispatcher starts once and runs each guard in-process, instead of one spawn per guard.
 
-They **ask** rather than hard-block — an intentional op is one confirmation away — and a guard bug never blocks you (default is always allow). Details + how to disable: [`hooks/README.md`](hooks/README.md).
+| Hook | Fires on | Wired script | Does |
+|---|---|---|---|
+| **sql-guard** | Bash running destructive SQL | `guard-dispatch` | Asks before DROP / TRUNCATE / DELETE-or-UPDATE-with-no-WHERE / `dotnet ef database drop` — shows the safe alternative |
+| **git-guard** | Dangerous git | `guard-dispatch` | Asks before force push, push to main, `reset --hard`, `clean -f`, `branch -D`, history rewrites |
+| **dotnet-format** | `.cs` edits | `edit-dispatch` | Reminds you to `dotnet format` + build before commit (set `SKYOPS_AUTOFORMAT=1` to auto-format the changed file) |
+| **sky-test-nudge** | C# source edits in CS_Datafactory_v2 | `edit-dispatch` | Nudges you to close the test loop with `/sky-test diff`. Silent elsewhere |
+| **knowledge-recall** | every prompt | `knowledge-recall` | Scores the prompt against the lesson store and injects only strong matches. Deterministic recall — it doesn't depend on the model remembering to look |
+| **session-restore** | after a compaction | `session-restore` | Points the session back at the plan file and scope manifest for the current branch. Stores nothing; silent when there is no active work |
+
+They **ask** rather than hard-block — an intentional op is one confirmation away — and a guard bug never blocks you (default is always allow).
+
+**Node or bash is chosen for you.** The manifest always wires the portable `.js`, so hooks work with no Git Bash. If you additionally wire a `.sh` port in your own `settings.json`, the node side detects it and stands down *for that guard*, so nothing fires twice. Measured on a Defender-scanned box: **~7.3s per node spawn against ~0.7s for bash**. Check what is actually live with `node scripts/hook-doctor.js`.
+
+Details, env vars, and the opt-in measurement (`SKYOPS_METRICS=1`): [`hooks/README.md`](hooks/README.md).
 
 ### Standards
 

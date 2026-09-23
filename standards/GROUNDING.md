@@ -70,8 +70,36 @@ When a command fans out into parallel lanes/specialists, match the effort to the
 - **One good grep beats five reads.** Prefer a single targeted pattern search over opening many files.
 - **Don't split trivial work.** Only fan out when lanes are genuinely independent and won't re-read the same files. A one-file change is one lane.
 
+## Output Budget (every lane and agent)
+
+The tool budget above caps what a lane *reads*. This caps what it *returns*. An orchestrator pays
+for every word a parallel lane sends back, so one lane pasting a build log taxes the whole review.
+
+- **At most 5 findings** in a normal response, most severe first.
+- **Roughly 600-800 words** for the whole response.
+- **No raw logs, no full diffs.** Quote the narrowest thing that proves the point — the offending
+  lines, the failing assertion — never the surrounding build output or the whole hunk.
+- **Evidence stays narrow:** a `file:line` plus a short snippet, per Rule 1. Never paste a file.
+- **Nothing found → return `CLEAN` and stop.** Do not list what you checked or why it was fine.
+
+### Critical and High are never truncated
+
+The budget bounds noise, not signal. It is a limit on how much you explain, never on what you report.
+
+- **Report every Critical and High finding**, however many there are. They do not count toward the
+  5, and may push the response past the word budget. Trimming or merging one to fit is a protocol
+  violation.
+- The 5-finding cap applies to **Medium, Low and Optional** only.
+- **Never drop silently.** If the cap held anything back, end with one line giving the count and
+  severities — e.g. `+4 Low not listed (naming, dead code)` — so the orchestrator can ask for them.
+- A lane's own required output — an acceptance-criteria confirmation, an SRV coverage line, an
+  `INSUFFICIENT EVIDENCE` line — is part of the contract, not a finding. It is never cut to fit.
+
+---
+
 ## For the caller / orchestrator
 
 - **Drop uncited findings before aggregating.** Do not let a lane's un-evidenced claim reach the final report.
+- **A held-back line is a prompt, not a dismissal.** When a lane ends with `+N ... not listed`, those findings still exist. Ask for them when the verdict is borderline or the area is high-risk.
 - **Downgrade on `INSUFFICIENT EVIDENCE`.** If any required check is unverified, the overall verdict is not PASS/Approve — it is "needs verification", with the exact missing proof listed.
 - **Prefer one grep/one query over many reads.** Bounded evidence beats broad scanning.

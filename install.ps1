@@ -113,40 +113,48 @@ if (Test-Path $bak) {
 Write-Host ""
 Write-Host "Done. Restart Claude Code (or reload) to pick up changes." -ForegroundColor Cyan
 
-# Hook wiring reminder (the installer never edits settings.json).
-$nudge = Join-Path $BinDst 'sky-test-nudge.js'
-if (Test-Path $nudge) {
-    Write-Host ""
-    Write-Host "Hook wiring (one-time, manual):" -ForegroundColor Yellow
-    Write-Host "  sky-test-nudge.js is installed but not wired. To auto-nudge /sky-test after"
-    Write-Host "  C# source edits in CS_Datafactory_v2, add this PostToolUse hook to"
-    Write-Host '  ~/.claude/settings.json (merge into the existing "hooks" object):'
-    Write-Host ''
-    Write-Host '    "PostToolUse": [' -ForegroundColor DarkGray
-    Write-Host '      { "matcher": "Edit|Write",' -ForegroundColor DarkGray
-    Write-Host '        "hooks": [ { "type": "command",' -ForegroundColor DarkGray
-    Write-Host '          "command": "node \"%USERPROFILE%\\.claude\\bin\\sky-test-nudge.js\"",' -ForegroundColor DarkGray
-    Write-Host '          "statusMessage": "sky-test coverage check" } ] }' -ForegroundColor DarkGray
-    Write-Host '    ]' -ForegroundColor DarkGray
-    Write-Host "  (Use your real home path in the command; %USERPROFILE% is shown for reference.)"
-}
+# Hook implementation selection (the installer never edits settings.json).
+#
+# The plugin manifest always wires the portable .js, so hooks work out of the box
+# with no Git Bash. Where a .sh port exists AND Git Bash is present, wiring the
+# .sh in settings.json is faster — measured on this machine: ~7.3s per node spawn
+# against ~0.7s for bash, on a Defender-scanned box. The node side detects a
+# wired .sh and stands down for that guard, so wiring both does not double-fire.
+Write-Host ""
+Write-Host "Hook implementation:" -ForegroundColor Green
+$bashExe = @(
+    $env:SKYOPS_BASH,
+    'C:\Program Files\Git\bin\bash.exe',
+    'C:\Program Files\Git\usr\bin\bash.exe',
+    'C:\Program Files (x86)\Git\bin\bash.exe'
+) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
 
-$recall = Join-Path $BinDst 'knowledge-recall.sh'
-if (Test-Path $recall) {
-    Write-Host ""
-    Write-Host "Hook wiring (one-time, manual):" -ForegroundColor Yellow
-    Write-Host "  knowledge-recall.sh is installed but not wired. It makes /sky-learn lessons"
-    Write-Host "  surface automatically instead of depending on the model calling /sky-recall."
-    Write-Host '  Add this UserPromptSubmit hook to ~/.claude/settings.json:'
+if (-not $bashExe) {
+    Write-Host "  Git Bash not found -> the plugin's node hooks are active. Nothing to do."
+    Write-Host "  (Install Git for Windows later and re-run to get the faster bash hooks.)"
+} else {
+    Write-Host "  Git Bash found at $bashExe"
+    Write-Host "  The node hooks already work. To use the faster bash ports, add these to"
+    Write-Host '  ~/.claude/settings.json (merge into the existing "hooks" object):' -ForegroundColor Yellow
     Write-Host ''
-    Write-Host '    "UserPromptSubmit": [' -ForegroundColor DarkGray
-    Write-Host '      { "hooks": [ { "type": "command",' -ForegroundColor DarkGray
-    Write-Host '          "command": "\"C:\\Program Files\\Git\\usr\\bin\\bash.exe\" \"%USERPROFILE%/.claude/bin/knowledge-recall.sh\"",' -ForegroundColor DarkGray
-    Write-Host '          "timeout": 10 } ] }' -ForegroundColor DarkGray
-    Write-Host '    ]' -ForegroundColor DarkGray
-    Write-Host "  (Use your real home path; %USERPROFILE% is shown for reference.)"
-    Write-Host "  Wire the .sh, not the .js — this fires on every prompt, and node costs ~9.3s"
-    Write-Host "  per spawn here against ~1.2s for bash. Use the .js only where bash is absent."
-    Write-Host "  The store lives at ~/.claude/skyops-knowledge (machine-local, never committed)."
-    Write-Host "  It stays silent until a lesson strongly matches the prompt."
+    $shHooks = @(
+        @{ Event = 'PreToolUse';       Matcher = 'Bash';       Script = 'sql-guard.sh' },
+        @{ Event = 'PreToolUse';       Matcher = 'Bash';       Script = 'git-guard.sh' },
+        @{ Event = 'PostToolUse';      Matcher = 'Edit|Write'; Script = 'sky-test-nudge.sh' },
+        @{ Event = 'UserPromptSubmit'; Matcher = $null;        Script = 'knowledge-recall.sh' }
+    )
+    foreach ($h in $shHooks) {
+        $target = Join-Path $BinDst $h.Script
+        if (-not (Test-Path $target)) { continue }
+        $m = if ($h.Matcher) { '"matcher": "' + $h.Matcher + '", ' } else { '' }
+        Write-Host ("    " + $h.Event + ": { " + $m + '"hooks": [ { "type": "command",') -ForegroundColor DarkGray
+        Write-Host ('      "command": "\"' + $bashExe + '\" \"' + $target + '\"", "timeout": 10 } ] }') -ForegroundColor DarkGray
+    }
+    Write-Host ''
+    Write-Host "  dotnet-format has no .sh port, so it keeps running on node either way."
+    Write-Host "  The lesson store lives at ~/.claude/skyops-knowledge (machine-local)."
 }
+Write-Host ""
+Write-Host "  Check what is actually active at any time with:"
+Write-Host "    node `"$(Join-Path $BinDst 'hook-doctor.js')`"" -ForegroundColor DarkGray
+Write-Host "  It prints the winning implementation per hook and flags any double-wiring."

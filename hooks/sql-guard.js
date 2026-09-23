@@ -10,22 +10,26 @@
 // Safety-of-the-guard-itself: any parsing/JSON error => allow (exit 0). A hook
 // bug must never block the user's work.
 
+//
+// Runs standalone (stdin -> stdout JSON) and is also reusable: guard-dispatch.js
+// requires `check(data)` so one Bash tool call spawns ONE node process instead
+// of one per guard. The rules below are the single source of truth for both.
+
 "use strict";
 
-let input = "";
-process.stdin.on("data", (c) => (input += c));
-process.stdin.on("end", () => {
+// Returns the ask-reason string, or null when the command is fine.
+// Never throws: on any internal error the caller gets null (= allow).
+function check(data) {
   try {
-    const data = JSON.parse(input || "{}");
-    const cmd = (data.tool_input && data.tool_input.command) || "";
-    if (typeof cmd !== "string" || !cmd.trim()) return allow();
+    const cmd = (data && data.tool_input && data.tool_input.command) || "";
+    if (typeof cmd !== "string" || !cmd.trim()) return null;
 
     // Only guard actual SQL execution. If no SQL runner is invoked, we can't
     // claim it's destructive (it might just be reading a migration file).
     const runsSql =
       /\b(sqlcmd|osql|Invoke-Sqlcmd|psql|mysql|mariadb|sqlite3)\b/i.test(cmd) ||
       /\bdotnet\s+ef\s+database\s+(drop|update)\b/i.test(cmd);
-    if (!runsSql) return allow();
+    if (!runsSql) return null;
 
     const reasons = [];
 
@@ -42,32 +46,43 @@ process.stdin.on("end", () => {
     if (/\bALTER\s+TABLE\b[\s\S]*\bDROP\b/i.test(cmd))
       reasons.push("ALTER TABLE ... DROP removes a column/constraint");
 
-    if (!reasons.length) return allow(); // SQL runs, but it's not destructive.
+    if (!reasons.length) return null; // SQL runs, but it's not destructive.
 
-    return ask(
+    return (
       "SkyOps SQL guard — destructive operation detected:\n  - " +
-        reasons.join("\n  - ") +
-        "\nSafe alternative: add a specific WHERE (id/tenant/date), prefer a soft delete, " +
-        "run SELECT COUNT(*) of the target rows first, or scope the migration. " +
-        "See /sky-sql-destructive-guard for the full check."
+      reasons.join("\n  - ") +
+      "\nSafe alternative: add a specific WHERE (id/tenant/date), prefer a soft delete, " +
+      "run SELECT COUNT(*) of the target rows first, or scope the migration. " +
+      "See /sky-sql-destructive-guard for the full check."
     );
   } catch (e) {
-    return allow(); // never block on our own error
+    return null; // never block on our own error
   }
-});
-
-function allow() {
-  process.exit(0);
 }
-function ask(reason) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "ask",
-        permissionDecisionReason: reason,
-      },
-    })
-  );
-  process.exit(0);
+
+module.exports = { check };
+
+// Standalone mode — unchanged wire behaviour for anyone wiring this file directly.
+if (require.main === module) {
+  let input = "";
+  process.stdin.on("data", (c) => (input += c));
+  process.stdin.on("end", () => {
+    let reason = null;
+    try {
+      reason = check(JSON.parse(input || "{}"));
+    } catch (e) {
+      reason = null;
+    }
+    if (!reason) process.exit(0);
+    process.stdout.write(
+      JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: "ask",
+          permissionDecisionReason: reason,
+        },
+      }),
+      () => process.exit(0)
+    );
+  });
 }

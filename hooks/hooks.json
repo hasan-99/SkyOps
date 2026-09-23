@@ -5,18 +5,20 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/sql-guard.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/guard-dispatch.js",
           "timeout": 10
         }
       ]
-    },
+    }
+  ],
+  "SessionStart": [
     {
-      "matcher": "Bash",
+      "matcher": "compact",
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/git-guard.js",
-          "timeout": 10
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-restore.js",
+          "timeout": 15
         }
       ]
     }
@@ -38,18 +40,8 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/dotnet-format.js",
-          "timeout": 60
-        }
-      ]
-    },
-    {
-      "matcher": "Edit|Write",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/sky-test-nudge.js",
-          "timeout": 30,
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/edit-dispatch.js",
+          "timeout": 60,
           "statusMessage": "sky-test coverage check"
         }
       ]

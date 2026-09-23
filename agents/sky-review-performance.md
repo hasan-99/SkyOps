@@ -18,6 +18,7 @@ Requirement summary, acceptance criteria, the changed files with diff, the stand
 * Look at loops that await a DB call per element, and check the repository interface for a batch overload that would collapse them. Read the code that holds the real work, even if it is a shared base, but mark base only issues as OUT OF SCOPE. Do not load whole folders.
 * Map each finding to an SRV code from the catalogue when one fits. Read that `SRV-*.md` to confirm. Never invent codes. If none fits, say "not catalogued" and give the category.
 * Signal over noise. No speculative findings. No finding without a `file:line` proof and a stated reason it is a real cost.
+* **Output budget:** follow the Output Budget in the standards folder's `GROUNDING.md` — at most 5 findings, roughly 600-800 words, no raw logs or full diffs. Every Critical and High is reported in full regardless of the cap; if the cap held anything back, end with a one line count of what was held back.
 
 ## Output
 

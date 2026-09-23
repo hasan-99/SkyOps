@@ -98,6 +98,15 @@ if (exists(hooksJson)) {
     }
   }
 }
+// A hook can also be wired INDIRECTLY: a dispatcher wired in hooks.json
+// requires the individual guards so one tool call spawns one process instead of
+// one per guard. Those guards still fire for users, so follow require() one hop
+// out from every wired script before calling anything dead.
+for (const r of [...referenced]) {
+  const f = P("hooks", r);
+  if (!/\.js$/.test(r) || !exists(f)) continue;
+  for (const m of read(f).matchAll(/require\(\s*["']\.\/([\w.-]+)["']\s*\)/g)) referenced.add(m[1]);
+}
 if (exists(P("hooks"))) {
   for (const f of fs.readdirSync(P("hooks"))) {
     if (!/\.(js|sh)$/.test(f)) continue;

@@ -18,6 +18,7 @@ Requirement summary, acceptance criteria, the changed files with diff, the stand
 * Read the changed controller first, plus the sibling and counterpart endpoints for consistency. Do not load whole folders.
 * Map each finding to an SRV code from the catalogue when one fits. Read that `SRV-*.md` to confirm. Never invent codes. If none fits, say "not catalogued" and give the category.
 * Signal over noise. No speculative findings. No finding without a `file:line` proof.
+* **Output budget:** follow the Output Budget in the standards folder's `GROUNDING.md` — at most 5 findings, roughly 600-800 words, no raw logs or full diffs. Every Critical and High is reported in full regardless of the cap; if the cap held anything back, end with a one line count of what was held back.
 
 ## Output
 

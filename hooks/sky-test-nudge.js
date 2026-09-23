@@ -38,41 +38,57 @@ function qualifies(fp) {
   return true;
 }
 
-(async () => {
+// Returns the additionalContext string, or null when there is nothing to nudge.
+// Never throws: on any internal error the caller gets null.
+function run(payload) {
   try {
-    const raw = await readStdin();
-    if (!raw.trim()) return process.exit(0);
-
-    const payload = JSON.parse(raw);
     const fp =
-      (payload.tool_input && payload.tool_input.file_path) ||
-      (payload.tool_response && payload.tool_response.filePath) ||
+      (payload && payload.tool_input && payload.tool_input.file_path) ||
+      (payload && payload.tool_response && payload.tool_response.filePath) ||
       '';
 
-    if (!qualifies(fp)) return process.exit(0);
+    if (!qualifies(fp)) return null;
 
     const name = fp.replace(/\\/g, '/').split('/').pop();
-    const context =
+    return (
       `You just edited C# source in CS_Datafactory_v2 (${name}). ` +
       `Before treating this change as done, close the test loop with /sky-test diff: ` +
       `map the change to the tests that cover it, edit existing tests or create missing ones ` +
       `in the repo's xUnit + NSubstitute style (plain Assert, per-module CreateSut/InMemory-vs-mock convention), ` +
       `run only the affected tests, fix failures within budget, and commit per the run's commit mode ` +
-      `(ask-first unless commit=auto). If this edit was itself a test file or has no runtime surface, ignore this.`;
-
-    // Write then exit via the flush callback — process.exit() before the pipe
-    // drains would truncate the output.
-    process.stdout.write(
-      JSON.stringify({
-        hookSpecificOutput: {
-          hookEventName: 'PostToolUse',
-          additionalContext: context,
-        },
-      }),
-      () => process.exit(0)
+      `(ask-first unless commit=auto). If this edit was itself a test file or has no runtime surface, ignore this.`
     );
   } catch (_e) {
     // Never break the tool pipeline on a nudge failure.
-    process.exit(0);
+    return null;
   }
-})();
+}
+
+module.exports = { run };
+
+// Standalone mode — unchanged wire behaviour for anyone wiring this file directly.
+if (require.main === module) {
+  (async () => {
+    try {
+      const raw = await readStdin();
+      if (!raw.trim()) return process.exit(0);
+
+      const context = run(JSON.parse(raw));
+      if (!context) return process.exit(0);
+
+      // Write then exit via the flush callback — process.exit() before the pipe
+      // drains would truncate the output.
+      process.stdout.write(
+        JSON.stringify({
+          hookSpecificOutput: {
+            hookEventName: 'PostToolUse',
+            additionalContext: context,
+          },
+        }),
+        () => process.exit(0)
+      );
+    } catch (_e) {
+      process.exit(0);
+    }
+  })();
+}

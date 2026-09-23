@@ -8,15 +8,19 @@
 //
 // Any error => allow (exit 0). The guard must never block work on its own bug.
 
+//
+// Runs standalone (stdin -> stdout JSON) and is also reusable: guard-dispatch.js
+// requires `check(data)` so one Bash tool call spawns ONE node process instead
+// of one per guard. The rules below are the single source of truth for both.
+
 "use strict";
 
-let input = "";
-process.stdin.on("data", (c) => (input += c));
-process.stdin.on("end", () => {
+// Returns the ask-reason string, or null when the command is fine.
+// Never throws: on any internal error the caller gets null (= allow).
+function check(data) {
   try {
-    const data = JSON.parse(input || "{}");
-    const cmd = (data.tool_input && data.tool_input.command) || "";
-    if (typeof cmd !== "string" || !/\bgit\b/.test(cmd)) return allow();
+    const cmd = (data && data.tool_input && data.tool_input.command) || "";
+    if (typeof cmd !== "string" || !/\bgit\b/.test(cmd)) return null;
 
     const reasons = [];
 
@@ -52,31 +56,42 @@ process.stdin.on("end", () => {
     if (/\bgit\s+push\b[^\n]*--delete\b/i.test(cmd))
       reasons.push("deleting a remote branch/ref");
 
-    if (!reasons.length) return allow();
+    if (!reasons.length) return null;
 
-    return ask(
+    return (
       "SkyOps git guard — destructive/irreversible git op detected:\n  - " +
-        reasons.join("\n  - ") +
-        "\nIf this is intentional, confirm. Safer options: --force-with-lease instead of --force, " +
-        "a feature branch instead of pushing to main, `git stash` instead of reset --hard."
+      reasons.join("\n  - ") +
+      "\nIf this is intentional, confirm. Safer options: --force-with-lease instead of --force, " +
+      "a feature branch instead of pushing to main, `git stash` instead of reset --hard."
     );
   } catch (e) {
-    return allow();
+    return null;
   }
-});
-
-function allow() {
-  process.exit(0);
 }
-function ask(reason) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "ask",
-        permissionDecisionReason: reason,
-      },
-    })
-  );
-  process.exit(0);
+
+module.exports = { check };
+
+// Standalone mode — unchanged wire behaviour for anyone wiring this file directly.
+if (require.main === module) {
+  let input = "";
+  process.stdin.on("data", (c) => (input += c));
+  process.stdin.on("end", () => {
+    let reason = null;
+    try {
+      reason = check(JSON.parse(input || "{}"));
+    } catch (e) {
+      reason = null;
+    }
+    if (!reason) process.exit(0);
+    process.stdout.write(
+      JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: "ask",
+          permissionDecisionReason: reason,
+        },
+      }),
+      () => process.exit(0)
+    );
+  });
 }

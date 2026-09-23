@@ -8,6 +8,72 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.8.0] - One spawn per event, automatic hook selection, and the first measurements
+
+All timings below were measured on a Defender-scanned Windows box: **~7.27s per node spawn,
+~0.71s per bash spawn** (5 runs each). The old `~9.3s / ~1.2s` and `~18s / ~1.8s` figures quoted
+across `install.ps1`, `hooks/README.md` and the `.sh` headers were stale and disagreed with each
+other; they are now one measured pair.
+
+### Hooks fired one process per guard
+`hooks.json` wired `sql-guard.js` + `git-guard.js` as two `PreToolUse` entries and
+`dotnet-format.js` + `sky-test-nudge.js` as two `PostToolUse` entries, so every Bash call and every
+edit paid two node spawns. Added `guard-dispatch.js` and `edit-dispatch.js`: one spawn per event,
+each guard still owning its own rules (the dispatchers `require` them — no logic is duplicated).
+Order, exit codes, stdin/stdout and the `ask` decision are unchanged; `sky-test-nudge` is still
+kept off `MultiEdit`, matching its original matcher. Verified with 56 behavioural checks.
+
+### Node and bash hooks both fired, so guards ran twice
+Claude Code merges plugin hooks with `settings.json` hooks. A machine wiring the faster `.sh` ports
+also ran the plugin's `.js`, so the SQL and git guards each evaluated **twice** and a dangerous
+command asked for confirmation twice. Added `hook-env.js`: the node side detects a `.sh` port wired
+on the same event and stands down **per guard**, so a half-wired setup keeps full coverage and
+`dotnet-format` (no `.sh` port) always runs. Any doubt — unreadable settings, bad JSON — falls back
+to *running* the node guard. `SKYOPS_HOOK_IMPL=node` forces node. `.js`/`.sh` parity verified by
+differential test: 23 comparisons, 0 mismatches.
+
+### No way to see which hook implementation was active
+Added `scripts/hook-doctor.js`: prints, per event, what the plugin wires, what your settings wire,
+which implementation wins, and flags anything that would fire twice. `--parity` diffs each `.js`
+against its `.sh`. `install.ps1` now detects Git Bash and prints the matching wiring instead of
+unconditional advice — its old text told users to wire `sky-test-nudge.js`, which the plugin
+already wired, causing the double-fire it was meant to prevent.
+
+### `dotnet6-test-runner` contradicted the repo's own test conventions
+The agent mandated **Moq** and **FluentAssertions** and AAA section comments. `/sky-test`'s House
+Rules say "No Moq/FakeItEasy", "No FluentAssertions/Shouldly — they are not referenced", and "No
+`// Arrange // Act // Assert` comments". Tests written to it would not compile. Rewritten to derive
+conventions from the target repo (`PackageReference` list, then nearby tests) and never introduce a
+library the project lacks. 203 → 58 lines, 17 → 6 tools; `Write`/`Edit` added — it previously had
+no way to create the test files it existed to write.
+
+### Agents had no output limit
+Added an **Output Budget** to `standards/GROUNDING.md` — the shared contract that, despite saying
+"reference this from a skill with one line", was referenced by nothing. Max 5 findings, ~600-800
+words, no raw logs, no full diffs, `CLEAN` when clean. Every Critical and High is exempt from both
+limits and never dropped; anything held back by the cap must be named in a count line. Wired into
+all 7 agents with one line each.
+
+### Active work was rediscovered after every compaction
+`/sky-scope` and `/sky-task` already persist key, branch, `head_sha`, phase and open requirements —
+what was missing was the reconnect. Added a `SessionStart` (`compact`) hook, `session-restore.js`,
+that **writes nothing** and emits ~6 lines pointing at the existing plan file and scope manifest,
+marking the manifest `current` or `STALE` by comparing its `head_sha` to `HEAD` live. Silent when
+there is no active work.
+
+### Nothing was measured
+Added `hooks/metrics.js` (97 lines, **off by default**, `SKYOPS_METRICS=1`). Records hook logic and
+process time, tool result/input bytes, the harness-supplied `duration_ms`, slash-command name and
+prompt size, compaction count, and whether the scope manifest was reused or stale. It adds **no new
+hook spawns** — every call site is a hook that already runs. Overhead ~1µs off, ~0.5ms on, against a
+~7,270ms spawn. Never records prompt text, source, tool results or command strings: callers pass
+byte counts, and an identifier whitelist drops anything else. Verified with 9 sensitive probes, all
+clean. Read it back with `hook-doctor.js --metrics`.
+
+### Lint
+`skyops-lint.js` now follows `require()` one hop out of a wired hook, so guards reached through a
+dispatcher are not reported as dead.
+
 ## [2.7.0] - Framework self-checks, reusable scope, and the location axis
 
 ### Added

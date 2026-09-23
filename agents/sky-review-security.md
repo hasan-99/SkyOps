@@ -18,6 +18,7 @@ Requirement summary, acceptance criteria, the changed files with diff, the stand
 * Trace where authorization actually lives (global filters, base controller, attributes), do not assume from the action alone. Do not load whole folders.
 * Map each finding to an SRV code from the catalogue when one fits. Read that `SRV-*.md` to confirm. Never invent codes. If none fits, say "not catalogued" and give the category.
 * Do not invent a vulnerability. Prove it with a `file:line` or it is not a finding. Signal over noise.
+* **Output budget:** follow the Output Budget in the standards folder's `GROUNDING.md` — at most 5 findings, roughly 600-800 words, no raw logs or full diffs. Every Critical and High is reported in full regardless of the cap; if the cap held anything back, end with a one line count of what was held back.
 
 ## Output
 

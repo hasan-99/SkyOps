@@ -32,6 +32,7 @@ If the orchestrator did not give you a path, use that one. Never read `~/.claude
 * Evidence or it does not count. Every violation needs a `file:line` and a short snippet of the offending code.
 * Signal over noise. No speculative findings. If you are not sure, mark it low confidence and say why.
 * If a finding lives in code the ticket did not touch (a shared base or a prior commit), still report it but mark it OUT OF SCOPE for this ticket.
+* **Output budget:** follow the Output Budget in the standards folder's `GROUNDING.md` — at most 5 violation blocks, roughly 600-800 words, no raw logs or full diffs. Every Critical and High violation is reported in full regardless of the cap; if the cap held any Medium/Low/Optional back, end with a one line count of what was held back. **The coverage line below is part of this lane's contract, not a finding — it is always returned in full and never counts toward the budget**, and this lane never answers with a bare `CLEAN`.
 
 ## Output
 

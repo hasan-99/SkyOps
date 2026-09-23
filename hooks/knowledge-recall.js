@@ -281,12 +281,36 @@ function stats() {
 // --------------------------------------------------------------------- hook
 
 function runHook() {
+  // If the faster knowledge-recall.sh is already wired for this event, Claude
+  // Code runs it too — stand down rather than injecting the same lessons twice.
+  // Any doubt => run (see hook-env.js). SKYOPS_HOOK_IMPL=node forces node.
+  try {
+    if (require("./hook-env.js").wiredBashHooks("UserPromptSubmit").has("knowledge-recall.sh"))
+      return quiet();
+  } catch (e) {
+    // hook-env missing or broken — carry on with the node implementation.
+  }
+
   let input = "";
   process.stdin.on("data", (c) => (input += c));
   process.stdin.on("end", () => {
     try {
       const data = JSON.parse(input || "{}");
       const prompt = String(data.prompt || "");
+
+      // Grouping key + size only. The slash-command NAME is recorded (it is an
+      // identifier, e.g. "sky-review"); the prompt text never is.
+      try {
+        const metrics = require("./metrics.js");
+        const cmd = prompt.trim().match(/^\/([a-z0-9-]{1,40})\b/i);
+        metrics.record({
+          kind: "prompt",
+          event: "UserPromptSubmit",
+          command: cmd ? cmd[1] : "none",
+          prompt_bytes: metrics.bytes(prompt),
+        });
+      } catch (e) {}
+
       if (prompt.trim().length < MIN_PROMPT_LEN) return quiet();
       if (prompt.trim().startsWith("/sky-recall")) return quiet(); // don't double up
 
