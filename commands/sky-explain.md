@@ -52,7 +52,7 @@ This is the part that makes the brief useful: connect each requirement to **real
 
 For the resolved repo under `C:\SharedProjects`:
 
-- Search for the entities, handlers, services, controllers, endpoints, DTOs, and tables the ticket is about. Use targeted search first; if the repo is large/unfamiliar and the mapping is broad, dispatch **one** focused search subagent (cheaper model) to locate and return only the relevant `file:line` anchors don't pull whole files into context.
+- Search for the entities, handlers, services, controllers, endpoints, DTOs, and tables the ticket is about. Use targeted search first; if the repo is large/unfamiliar and the mapping is broad, dispatch **one** `sky-reader` agent to locate and return only the relevant `file:line` anchors. It gathers locations only; the main model still interprets requirements and explains the flow. Do not pull whole files into context.
 - For each requirement, determine:
   - **Where it lives** the real file(s)/class(es)/route(s) it touches (with `file:line` when known).
   - **State** does the thing already exist, does it need a change, or is it brand new? Is any part risky or unclear?

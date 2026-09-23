@@ -8,6 +8,32 @@ SkyOps follows semantic versioning:
 - `MINOR` version, like `2.1.0`, for new commands, new skills, or backward-compatible improvements.
 - `MAJOR` version, like `3.0.0`, for breaking changes, folder structure changes, removed commands, or changed safety behavior.
 
+## [2.9.0] - Predictable model routing without a routing framework
+
+### Small work no longer requires agent fan-out
+
+`/sky-fast` previously required parallel specialist agents for every task, even when one clear path
+and a few files were enough. It now starts in direct mode for narrow work and dispatches only when
+independent areas genuinely need separate reasoning. Parallelism is retained for real multi-lane
+work; security, data, and cross-project concerns still escalate out of the cheap path.
+
+### One Haiku locator instead of three overlapping helpers
+
+Added `sky-reader`, a deliberately narrow read-only Haiku agent for locating files, symbols, call
+sites, registrations, routes, and nearby tests. It returns bounded `file:line` facts and is forbidden
+from correctness, security, architecture, EF/UoW, root-cause, performance, and Jira verdicts.
+`/sky-explain`, `/sky-pr`, and sibling-pattern searches in `/sky-comment-triage` now use this named
+agent where the work is mechanical. Existing `/sky-scope` and `sky-repo-profile` remain the reusable
+diff and repository caches; no duplicate requirement-extractor or test-locator agents were added.
+
+### Requirement verdicts stay on Sonnet
+
+`/sky-jira-verify` now explicitly selects Sonnet for its general-purpose verification subagents and
+uses the smallest useful lane count. Those agents interpret requirements and decide Match/Mismatch,
+so they are intentionally not routed through Haiku. Existing service, data, security, performance,
+SRV, and test agents remain on Sonnet; the bounded API review lane remains on Haiku. No Opus agent or
+complexity-scoring router was added because SkyOps did not have an always-Opus path to correct.
+
 ## [2.8.0] - One spawn per event, automatic hook selection, and the first measurements
 
 All timings below were measured on a Defender-scanned Windows box: **~7.27s per node spawn,

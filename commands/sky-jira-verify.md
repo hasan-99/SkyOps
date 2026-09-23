@@ -86,11 +86,16 @@ Stale sha or no manifest: scope normally, and say which you did in one line.
 
 List the changed files and the exact diff for each ticket commit. Read surrounding code only where a requirement check needs it. Never load whole folders or projects.
 
-## Phase 3. Dispatch verification subagents IN PARALLEL
+## Phase 3. Dispatch the minimum verification lanes
 
-This must be real parallelism, not sequential.
+When more than one independent lane is needed, dispatch them with real parallelism, not sequentially.
+When one coherent lane covers all requirements, use one lane rather than manufacturing fan-out.
 
-Group the requirements into a small number of lanes (by area or by repo, aim for 2 to 5 lanes). Spawn one subagent per lane by sending all the Agent tool calls in a SINGLE message so they run concurrently. Use the general-purpose agent type.
+Group the requirements into the smallest useful number of lanes (by area or repo, normally 2 to 5;
+use one lane when one coherent area covers everything). Spawn one subagent per lane by sending all
+Agent tool calls in a SINGLE message so independent lanes run concurrently. Use the general-purpose
+agent type with `model: sonnet`: these lanes make Match/Mismatch decisions and must not inherit a
+cheaper active-session model. Do not use `sky-reader` for requirement verdicts.
 
 Each subagent receives only:
 

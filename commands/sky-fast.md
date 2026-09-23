@@ -23,9 +23,9 @@ No `APPROVE PLAN` = no code changes.
 
 ## Token-Saving Principle
 
-Use small specialist lanes in parallel. Never give every agent the whole repository. Send each lane only the task summary, candidate files, and exact question it must answer.
-
-SkyOps is designed to reduce token usage by using focused parallel specialist agents instead of one large sequential investigation.
+Use direct inspection for genuinely small work. Use focused specialist lanes only when independent
+areas need separate reasoning. Never give an agent the whole repository; send only the task summary,
+candidate files, and exact question.
 
 ## Hard Rules (Always Follow)
 
@@ -34,7 +34,7 @@ These rules are non-negotiable. They keep the mode fast and token-cheap.
 1. **No over-engineering.** Solve only the task asked. No extra abstractions, no "nice to have" changes, no refactors that were not requested.
 2. **No overthinking.** Pick the simplest correct path that matches existing patterns. Do not explore alternatives the task does not need.
 3. **Read only what you need.** Never open a file unless it is directly affected by the task. When in doubt, skip it.
-4. **Always run lanes as parallel agents.** Dispatch the relevant lanes (API, Service, Data, Tests, Security, Performance) as parallel sub-agents in one batch. Do not inspect them one by one. This is the main way the mode saves tokens.
+4. **Do not fan out by default.** Use direct mode when the affected path is already clear and one reasoning pass can cover it. When two or more genuinely independent lanes are needed, dispatch only those lanes in one parallel batch.
 5. **Always ask when blocked.** If you cannot safely continue without a missing detail, stop and ask. Never guess on business rules, security, or data ownership.
 
 ## Best For
@@ -69,7 +69,21 @@ Be fast, practical, and minimal.
 
 Start with a quick affected-files scan. Prefer filenames, symbols, route names, DTO names, handler names, DbSet names, and tests before reading full files.
 
-Use parallel agents to save time and tokens. Dispatch the relevant lanes together in one batch, not one at a time:
+### Direct mode
+
+Use the main model directly when the task is narrow, the affected path is clear, and no independent
+security, data/schema, or cross-project question exists. Typical examples are one validation rule,
+one DTO mapping, one handler branch, one test-only adjustment, or a prompt/docs change. The existing
+inspection limits still apply; direct mode is not permission to broaden the search.
+
+If the only missing work is mechanical location of files, symbols, call sites, or existing tests,
+dispatch `sky-reader` once with one exact lookup question. Do not use it for a correctness or risk
+verdict.
+
+### Specialist mode
+
+When the task crosses independent areas that need separate reasoning, dispatch only the relevant
+specialist lanes together in one batch:
 
 * API: controllers, routes, request/response DTOs, status codes
 * Service: commands, handlers, validators, mappings, business logic
@@ -78,11 +92,12 @@ Use parallel agents to save time and tokens. Dispatch the relevant lanes togethe
 * Security: auth, authorization, tenant isolation, over-posting, sensitive data
 * Performance: query shape, tracking, async flow, payload size
 
-Always run independent lanes as parallel sub-agents. This is required, not optional.
+Independent specialist lanes run in parallel. A lane is not independent merely because it has a
+heading below; do not create an agent whose answer the main model can obtain from the same few files.
 
 If true parallel execution is not available in the environment, inspect the lanes in the shortest possible sequence and merge findings into one compact plan.
 
-Only dispatch lanes that are relevant to the task. Keep Security and Performance as short risk checks unless the task directly touches them. Do not spin up an agent for a lane the task does not affect.
+Only dispatch lanes that are relevant to the task. Keep Security and Performance as short risk checks unless the task directly touches them. Do not spin up an agent for a lane the task does not affect, and do not dispatch lanes at all when direct mode is sufficient.
 
 ## Inspection Limits
 

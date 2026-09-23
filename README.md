@@ -65,9 +65,11 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 
 `sky-verification` is now goal-backward: it proves a C# change is not just written but actually **wired up** (registered in DI, routed, `AddHostedService`, `DbSet` present) and not a stub — and it auto-triggers after C# edits.
 
-### Agents (parallel subagents — `sky-review` dispatches these)
+### Agents (parallel subagents)
 
-Each runs in its own context with its own model, so what a lane reads never enters yours.
+Each runs in its own context with an explicit model, so what a lane reads never enters yours.
+`sky-review` dispatches the review lanes; selected commands use `sky-reader` only for bounded
+mechanical lookup.
 
 | Agent | Model | Lane |
 |---|---|---|
@@ -78,6 +80,7 @@ Each runs in its own context with its own model, so what a lane reads never ente
 | `sky-review-performance` | sonnet | N+1, per-item DB calls, hot paths, caching (SRV-M-007) |
 | `sky-srv-standards` | sonnet | Sweeps the diff against **every** SRV, one code at a time. Always runs, never gated |
 | `dotnet6-test-runner` | sonnet | Writes and runs xUnit + NSubstitute tests for changed .NET 6 code |
+| `sky-reader` | haiku | Mechanical read-only lookup of files, symbols, call sites, tests, and `file:line` anchors; never makes correctness or risk verdicts |
 
 Which lanes run is decided deterministically — see `scripts/lane-gate.js` below.
 

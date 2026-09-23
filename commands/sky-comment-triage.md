@@ -75,7 +75,10 @@ Classify:
 
 Only for points Phase 2 found Valid or Partially valid, and only when that defect is a *pattern* (not a one-off typo): search for the same shape elsewhere — sibling plugins/modules, copy-pasted classes, similar method names.
 
-Use small parallel lanes (the Agent tool, not a full multi-agent Workflow — this is a handful of targeted checks, not a large fan-out). Each lane gets:
+Use `sky-reader` for these mechanical sibling-pattern searches (the Agent tool, not a full
+multi-agent Workflow). It may return matching `file:line` anchors but never decides whether the
+reviewer's point is valid. Use small parallel lanes only when there are multiple independent narrow
+areas; otherwise run one reader. Each lane gets:
 
 * The confirmed defect pattern (1-2 sentences).
 * A candidate file or narrow area to check.

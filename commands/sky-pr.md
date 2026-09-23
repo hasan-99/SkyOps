@@ -56,7 +56,8 @@ Stop when the PR can be summarized honestly.
 
 Use focused lanes only when the PR touches multiple areas or risk is unclear.
 
-Prefer smaller/faster models for lane work when model selection is available.
+Use `sky-reader` for a mechanical evidence/location lane. Keep risk and data-impact conclusions in
+the main model; the reader must not make those verdicts.
 
 | Lane     | Use When                                      | Output                                       |
 | -------- | --------------------------------------------- | -------------------------------------------- |
