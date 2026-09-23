@@ -4,6 +4,24 @@ A Claude Code plugin for C#/.NET 6 backend work. Plan before you code, review wh
 
 This plugin is built for Claude Code. Not ported from anywhere, not shared with any other tool — this is its home.
 
+## Current release: 2.9.0
+
+Version **2.9.0** improves model routing without changing SkyOps' existing Claude Code plugin
+architecture. The goal is better quality per token, not simply choosing the cheapest model.
+
+### What is better than before
+
+| Before | In 2.9.0 | Benefit |
+|---|---|---|
+| `/sky-fast` required specialist-agent fan-out even for a small, obvious change | Small, clear tasks use direct inspection; agents run only for genuinely independent lanes | Less startup/context overhead and faster small-task planning |
+| Mechanical searches could use unnamed agents that inherited an unpredictable model | `sky-reader` is an explicit Haiku agent limited to files, symbols, call sites, tests, and `file:line` anchors | Predictable low-cost lookup without moving decisions to Haiku |
+| Jira verification normally created 2–5 generic lanes, even when one coherent lane was enough | It uses the smallest useful lane count and explicitly keeps Match/Mismatch verdicts on Sonnet | Lower fan-out while preserving requirement-analysis quality |
+| “Use a cheaper model” guidance did not clearly separate lookup from judgement | Haiku gathers bounded facts; Sonnet retains service, data, security, performance, SRV, test, and Jira reasoning | Clear quality boundary and fewer accidental downgrades |
+
+SkyOps does **not** add an automatic Opus router, scoring engine, or new routing framework. Normal
+orchestration uses the active Claude session model (Sonnet is the recommended default); Opus remains
+a deliberate choice for exceptional complexity.
+
 ## Install it
 
 **Testing it locally (fastest way to try it):**
@@ -34,6 +52,7 @@ That's it. Every command below shows up immediately — no marketplace needed fo
 | `sky-forensics` | The deep version of investigate — full incident reconstruction |
 | `sky-review` | The big one — orchestrates every specialist skill below into one PR-ready verdict |
 | `sky-comment-triage` | Someone left you a review comment — checks if they're actually right before you touch anything |
+| `sky-draft-comment` | Drafts a short Jira completion comment from verified branch, requirement, and test evidence; never posts it |
 | `sky-pr` | Writes your PR title + description from the current diff |
 | `sky-docs` | Turns a feature/flow into a Confluence-ready doc |
 | `sky-explain` | Turns a dense (often AI-written) Jira ticket into a simple, visual HTML brief — what's going on, what they want, and what your code flow does, grounded in the real repo |
