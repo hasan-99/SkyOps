@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "type": "group",
+      "ctime": 1758700000000,
+      "title": "SkyOps views",
+      "items": [
+        { "type": "file", "ctime": 1758700000001, "path": "Home.md" },
+        { "type": "file", "ctime": 1758700000002, "path": "SkyOps Map.canvas" },
+        { "type": "search", "ctime": 1758700000003, "query": "tag:#command" },
+        { "type": "search", "ctime": 1758700000004, "query": "tag:#skill" },
+        { "type": "search", "ctime": 1758700000005, "query": "tag:#agent" },
+        { "type": "search", "ctime": 1758700000006, "query": "tag:#guard" },
+        { "type": "search", "ctime": 1758700000007, "query": "tag:#review-lane" },
+        { "type": "search", "ctime": 1758700000008, "query": "tag:#review-internal" },
+        { "type": "search", "ctime": 1758700000009, "query": "tag:#judgement-helper" },
+        { "type": "search", "ctime": 1758700000010, "query": "tag:#plan-stage" },
+        { "type": "search", "ctime": 1758700000011, "query": "tag:#learning" }
+      ]
+    }
+  ]
+}
